@@ -45,24 +45,25 @@ The objective of this feature is to build and deploy a dedicated, high-speed, co
 ### 3.1 Learner Profile Modeling
 * **Cold-Start Learner:** Mean embedding vector generated from declared onboarding topics and current learning direction.
 * **Active (Warm) Learner:** Dynamic profile vector updated incrementally using an Exponential Moving Average of declared interests and recent positive interactions (liked, saved, and reposted posts):
-  $$u_{\text{warm}} = 0.6 \cdot u_{\text{declared}} + 0.4 \cdot \left(\frac{1}{N} \sum_{i=1}^{N} v_{\text{interacted\_post}_i}\right)$$
+  $$u_{\text{warm}} = 0.6 \cdot u_{\text{declared}} + 0.4 \cdot \left(\frac{1}{N} \sum_{i=1}^{N} v_i\right)$$
+  *(where $v_i$ represents the 384-dimensional embedding vector of the $i$-th interacted post)*
 
 ### 3.2 Post Semantic Embedding
 * When a post is published or updated, combine `title + " " + description/body` and pass it through `all-MiniLM-L6-v2` to produce a persistent 384-dimensional vector $v_{\text{post}}$.
 
 ### 3.3 Candidate Retrieval
 * Compute cosine similarity between the learner vector $u$ and all pre-filtered candidate post vectors $v$:
-  $$\text{semantic\_fit}(u, v) = \frac{u \cdot v}{\|u\|_2 \cdot \|v\|_2}$$
+  $$\text{SemanticFit}(u, v) = \frac{u \cdot v}{\|u\|_2 \cdot \|v\|_2}$$
 
 ### 3.4 Composite Ranking Pipeline
 Calculate the final score for each eligible candidate post:
-$$\text{post\_score} = 0.70 \times \text{semantic\_fit} + 0.15 \times \text{topic\_fit} + 0.10 \times \text{creator\_teaching\_quality} + 0.05 \times \text{freshness}$$
+$$\text{PostScore} = 0.70 \times \text{SemanticFit} + 0.15 \times \text{TopicFit} + 0.10 \times \text{CreatorQuality} + 0.05 \times \text{Freshness}$$
 
-* **`semantic_fit` (0.70):** Cosine similarity between user profile vector and post vector.
-* **`topic_fit` (0.15):** Match between candidate post topics and user's declared topics.
-* **`creator_teaching_quality` (0.10):** Author's peer teaching reputation score provided by Zayan (defaults to 0.50 neutral baseline).
-* **`freshness` (0.05):** Exponential half-life decay function with a 14-day half-life:
-  $$\text{freshness}(\Delta t) = \exp\left(-\frac{\Delta t}{14 \text{ days}}\right)$$
+* **`SemanticFit` (0.70):** Cosine similarity between user profile vector and post vector.
+* **`TopicFit` (0.15):** Match between candidate post topics and user's declared topics.
+* **`CreatorQuality` (0.10):** Author's peer teaching reputation score provided by Zayan (defaults to 0.50 neutral baseline).
+* **`Freshness` (0.05):** Exponential half-life decay function with a 14-day half-life:
+  $$\text{Freshness}(\Delta t) = \exp\left(-\frac{\Delta t}{14\text{ days}}\right)$$
 
 ### 3.5 Feed Diversity & Exclusion Rules
 * **Exclusion Filter:** Remove posts already seen, saved, or authored by the learner.

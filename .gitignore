@@ -1,1 +1,8 @@
-Documents
+# Core 
+*.pyc
+__pycache__/
+.pytest_cache/
+
+
+documents/*
+!documents/Amr_Post_Recommendation_Plan.md

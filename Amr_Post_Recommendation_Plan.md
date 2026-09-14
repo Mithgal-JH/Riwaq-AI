@@ -3,7 +3,7 @@
 
 **Feature Owner:** Amr Sheqwara (AI/ML Engineer)  
 **Assigned Scope:** Recommend Educational Posts for People (Exclusively)  
-**Git Branch:** `Amr-Sheqwara` (Strict Rule: Never push to `main`)  
+**Git Branch:** `Amr-Sheqwara`
 **Status:** Approved Working Plan  
 **Target Stakeholders:** Backend Team (.NET), Frontend Team, AI/ML Colleagues (Haitham, Zayan)  
 

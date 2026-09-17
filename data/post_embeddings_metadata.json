@@ -1,0 +1,720 @@
+{
+  "post_ids": [
+    "pst_101",
+    "pst_102",
+    "pst_103",
+    "pst_104",
+    "pst_105",
+    "pst_201",
+    "pst_202",
+    "pst_203",
+    "pst_204",
+    "pst_205",
+    "pst_301",
+    "pst_302",
+    "pst_303",
+    "pst_304",
+    "pst_305",
+    "pst_401",
+    "pst_402",
+    "pst_403",
+    "pst_404",
+    "pst_405",
+    "pst_501",
+    "pst_502",
+    "pst_503",
+    "pst_504",
+    "pst_505",
+    "pst_601",
+    "pst_602",
+    "pst_603",
+    "pst_604",
+    "pst_605",
+    "pst_701",
+    "pst_702",
+    "pst_703",
+    "pst_704",
+    "pst_705",
+    "pst_801",
+    "pst_802",
+    "pst_803",
+    "pst_804",
+    "pst_805"
+  ],
+  "records": {
+    "pst_101": {
+      "id": "pst_101",
+      "creator_id": "usr_alex_01",
+      "title": "Mastering Async/Await Patterns in FastAPI and Python",
+      "body": "Understanding the ASGI event loop is crucial when building high-concurrency microservices. In this guide, we dive into coroutines, non-blocking I/O with AnyIO, and common pitfalls such as calling synchronous blocking calls inside async routes which starves the worker threads.",
+      "created_at": "2026-09-13T14:30:00Z",
+      "primary_topic": "Programming/Web",
+      "predicted_topics": [
+        "Programming/Web"
+      ],
+      "topic_confidence_scores": {
+        "Programming/Web": 0.96
+      },
+      "creator_teaching_quality": 0.88,
+      "ocr_extracted_text": null
+    },
+    "pst_102": {
+      "id": "pst_102",
+      "creator_id": "usr_alex_01",
+      "title": "Database Indexing Strategies: B-Trees, Hash, and GiST in PostgreSQL",
+      "body": "When queries slow down, understanding how PostgreSQL executes sequential scans vs index scans can save your production database. We explore composite index column ordering, partial indexes for filtered queries, and how GiST indexes power geometric and full-text searches.",
+      "created_at": "2026-09-08T10:15:00Z",
+      "primary_topic": "Programming/Web",
+      "predicted_topics": [
+        "Programming/Web"
+      ],
+      "topic_confidence_scores": {
+        "Programming/Web": 0.94
+      },
+      "creator_teaching_quality": 0.85,
+      "ocr_extracted_text": "EXPLAIN ANALYZE SELECT * FROM users WHERE email = 'test@example.com';"
+    },
+    "pst_103": {
+      "id": "pst_103",
+      "creator_id": "usr_dev_02",
+      "title": "Event-Driven Microservices Architecture with RabbitMQ and .NET 8",
+      "body": "Decoupling distributed services requires a resilient messaging backbone. This tutorial walks through building consumer services with MassTransit, handling dead-letter exchanges, implementing retry policies, and maintaining message idempotency across network partitions.",
+      "created_at": "2026-08-28T09:00:00Z",
+      "primary_topic": "Programming/Web",
+      "predicted_topics": [
+        "Programming/Web"
+      ],
+      "topic_confidence_scores": {
+        "Programming/Web": 0.91
+      },
+      "creator_teaching_quality": 0.5,
+      "ocr_extracted_text": null
+    },
+    "pst_104": {
+      "id": "pst_104",
+      "creator_id": "usr_sarah_03",
+      "title": "Building Responsive Component Systems with Modern CSS Grid and Subgrid",
+      "body": "CSS Grid subgrid enables nested cards and layouts to participate in the parent sizing track. We construct a responsive dashboard layout without media queries, leveraging minmax, auto-fit, and CSS container queries for component-driven UI development.",
+      "created_at": "2026-09-12T16:45:00Z",
+      "primary_topic": "Programming/Web",
+      "predicted_topics": [
+        "Programming/Web",
+        "Design"
+      ],
+      "topic_confidence_scores": {
+        "Programming/Web": 0.82,
+        "Design": 0.65
+      },
+      "creator_teaching_quality": 0.76,
+      "ocr_extracted_text": null
+    },
+    "pst_105": {
+      "id": "pst_105",
+      "creator_id": "usr_dev_02",
+      "title": "Optimizing Docker Multi-Stage Builds for Minimal Production Images",
+      "body": "Bloated Docker images increase deployment latency and widen vulnerability attack surfaces. Learn how multi-stage Dockerfiles, distroless base images, and layer caching optimization can shrink a 1.2GB Python application down to under 90MB.",
+      "created_at": "2026-08-20T11:20:00Z",
+      "primary_topic": "Programming/Web",
+      "predicted_topics": [
+        "Programming/Web",
+        "Cybersecurity"
+      ],
+      "topic_confidence_scores": {
+        "Programming/Web": 0.85,
+        "Cybersecurity": 0.45
+      },
+      "creator_teaching_quality": 0.5,
+      "ocr_extracted_text": null
+    },
+    "pst_201": {
+      "id": "pst_201",
+      "creator_id": "usr_maria_04",
+      "title": "Understanding Backpropagation and Computational Graphs from Scratch",
+      "body": "Before importing PyTorch, building a simple scalar autograd engine clarifies how forward passes construct computation graphs and how reverse-mode automatic differentiation computes exact gradients via the chain rule of calculus.",
+      "created_at": "2026-09-14T08:00:00Z",
+      "primary_topic": "AI/Data",
+      "predicted_topics": [
+        "AI/Data",
+        "Mathematics"
+      ],
+      "topic_confidence_scores": {
+        "AI/Data": 0.95,
+        "Mathematics": 0.78
+      },
+      "creator_teaching_quality": 0.92,
+      "ocr_extracted_text": "dLoss/dw = dLoss/dy * dy/dz * dz/dw"
+    },
+    "pst_202": {
+      "id": "pst_202",
+      "creator_id": "usr_maria_04",
+      "title": "Dense Vector Search vs Sparse Retrieval: Cosine, Dot Product, and BM25",
+      "body": "When designing semantic search pipelines, comparing dense representations from Sentence Transformers against keyword-based BM25 reveals critical trade-offs in vocabulary mismatch versus out-of-domain generalization. We evaluate hybrid retrieval techniques.",
+      "created_at": "2026-09-11T13:20:00Z",
+      "primary_topic": "AI/Data",
+      "predicted_topics": [
+        "AI/Data"
+      ],
+      "topic_confidence_scores": {
+        "AI/Data": 0.93
+      },
+      "creator_teaching_quality": 0.9,
+      "ocr_extracted_text": null
+    },
+    "pst_203": {
+      "id": "pst_203",
+      "creator_id": "usr_tarek_05",
+      "title": "Practical Evaluation of Recommender Systems: NDCG@K and Precision@K",
+      "body": "Evaluating recommendation algorithms offline requires metrics that account for ranking positions. In this deep dive, we formulate Cumulative Gain, Discounted Cumulative Gain, and Normalized Discounted Cumulative Gain with concrete Python examples.",
+      "created_at": "2026-09-02T15:00:00Z",
+      "primary_topic": "AI/Data",
+      "predicted_topics": [
+        "AI/Data",
+        "Mathematics"
+      ],
+      "topic_confidence_scores": {
+        "AI/Data": 0.89,
+        "Mathematics": 0.65
+      },
+      "creator_teaching_quality": 0.75,
+      "ocr_extracted_text": null
+    },
+    "pst_204": {
+      "id": "pst_204",
+      "creator_id": "usr_tarek_05",
+      "title": "Transformer Attention Mechanisms: Self-Attention and Scaled Dot-Product",
+      "body": "An in-depth explanation of the attention equation: Softmax(QK^T / sqrt(d_k))V. We visually break down query, key, and value matrices, multi-head attention projections, and why scaling by square root of embedding dimension prevents vanishing gradients.",
+      "created_at": "2026-08-25T17:10:00Z",
+      "primary_topic": "AI/Data",
+      "predicted_topics": [
+        "AI/Data"
+      ],
+      "topic_confidence_scores": {
+        "AI/Data": 0.97
+      },
+      "creator_teaching_quality": 0.72,
+      "ocr_extracted_text": "Attention(Q, K, V) = softmax(Q K^T / sqrt(d_k)) V"
+    },
+    "pst_205": {
+      "id": "pst_205",
+      "creator_id": "usr_tarek_05",
+      "title": "Handling Imbalanced Classification: SMOTE vs Class-Weighted Cross-Entropy",
+      "body": "In fraud detection and medical diagnostics, positive cases are extremely rare. Learn why accuracy is deceptive, how focal loss and class-weighted loss reweight gradients, and when synthetic oversampling causes feature leakage.",
+      "created_at": "2026-08-18T10:00:00Z",
+      "primary_topic": "AI/Data",
+      "predicted_topics": [
+        "AI/Data"
+      ],
+      "topic_confidence_scores": {
+        "AI/Data": 0.88
+      },
+      "creator_teaching_quality": 0.5,
+      "ocr_extracted_text": null
+    },
+    "pst_301": {
+      "id": "pst_301",
+      "creator_id": "usr_omar_06",
+      "title": "STM32 Microcontroller Programming: GPIO and Interrupt Handling with CMSIS",
+      "body": "Bypassing heavy HAL layers to write bare-metal register operations on ARM Cortex-M microcontrollers. We configure the Nested Vector Interrupt Controller (NVIC), set up external trigger pins, and handle debouncing cleanly.",
+      "created_at": "2026-09-13T09:40:00Z",
+      "primary_topic": "Electronics/Embedded",
+      "predicted_topics": [
+        "Electronics/Embedded"
+      ],
+      "topic_confidence_scores": {
+        "Electronics/Embedded": 0.95
+      },
+      "creator_teaching_quality": 0.84,
+      "ocr_extracted_text": null
+    },
+    "pst_302": {
+      "id": "pst_302",
+      "creator_id": "usr_omar_06",
+      "title": "PCB Design Best Practices: Ground Planes, Decoupling, and Return Paths",
+      "body": "High-speed digital traces require careful consideration of impedance matching and return current paths. We explain why solid ground planes are superior to hashed grounds, where to place decoupling capacitors, and how to minimize EMI emissions.",
+      "created_at": "2026-09-06T14:15:00Z",
+      "primary_topic": "Electronics/Embedded",
+      "predicted_topics": [
+        "Electronics/Embedded"
+      ],
+      "topic_confidence_scores": {
+        "Electronics/Embedded": 0.92
+      },
+      "creator_teaching_quality": 0.82,
+      "ocr_extracted_text": null
+    },
+    "pst_303": {
+      "id": "pst_303",
+      "creator_id": "usr_khalid_07",
+      "title": "I2C vs SPI vs UART: Choosing and Debugging Serial Communication Protocols",
+      "body": "Serial communication protocol comparison for embedded peripherals. Learn master-slave clock synchronization, bus capacitance limits on I2C pull-up resistors, SPI full-duplex throughput capabilities, and decoding packets with a logic analyzer.",
+      "created_at": "2026-08-30T11:00:00Z",
+      "primary_topic": "Electronics/Embedded",
+      "predicted_topics": [
+        "Electronics/Embedded"
+      ],
+      "topic_confidence_scores": {
+        "Electronics/Embedded": 0.9
+      },
+      "creator_teaching_quality": 0.5,
+      "ocr_extracted_text": null
+    },
+    "pst_304": {
+      "id": "pst_304",
+      "creator_id": "usr_khalid_07",
+      "title": "Introduction to Real-Time Operating Systems: FreeRTOS Tasks and Queues",
+      "body": "Moving beyond a super-loop into deterministic multitasking. We cover preemptive priority scheduling, inter-task communication with queues and semaphores, and preventing priority inversion using priority inheritance mutexes.",
+      "created_at": "2026-08-23T16:30:00Z",
+      "primary_topic": "Electronics/Embedded",
+      "predicted_topics": [
+        "Electronics/Embedded",
+        "Programming/Web"
+      ],
+      "topic_confidence_scores": {
+        "Electronics/Embedded": 0.88,
+        "Programming/Web": 0.4
+      },
+      "creator_teaching_quality": 0.5,
+      "ocr_extracted_text": null
+    },
+    "pst_305": {
+      "id": "pst_305",
+      "creator_id": "usr_khalid_07",
+      "title": "Power Management and Sleep Modes in Battery-Operated IoT Nodes",
+      "body": "Achieving multi-year battery life requires optimizing standby modes. We examine deep sleep states on the ESP32 and nRF52, calculating average current consumption, waking up on RTC timers, and mitigating inrush currents during sensor sampling.",
+      "created_at": "2026-08-19T08:20:00Z",
+      "primary_topic": "Electronics/Embedded",
+      "predicted_topics": [
+        "Electronics/Embedded"
+      ],
+      "topic_confidence_scores": {
+        "Electronics/Embedded": 0.86
+      },
+      "creator_teaching_quality": 0.5,
+      "ocr_extracted_text": null
+    },
+    "pst_401": {
+      "id": "pst_401",
+      "creator_id": "usr_elena_08",
+      "title": "ROS 2 Architecture: Nodes, Topics, Services, and Actions Explained",
+      "body": "Transitioning to ROS 2 introduces DDS (Data Distribution Service) middleware, removing the single master bottleneck. We build publisher-subscriber pipelines in C++ and Python, handle lifecycle nodes, and coordinate long-running robot actions.",
+      "created_at": "2026-09-14T11:00:00Z",
+      "primary_topic": "Robotics",
+      "predicted_topics": [
+        "Robotics",
+        "Programming/Web"
+      ],
+      "topic_confidence_scores": {
+        "Robotics": 0.94,
+        "Programming/Web": 0.55
+      },
+      "creator_teaching_quality": 0.91,
+      "ocr_extracted_text": null
+    },
+    "pst_402": {
+      "id": "pst_402",
+      "creator_id": "usr_elena_08",
+      "title": "PID Controller Tuning in Autonomous Mobile Robots",
+      "body": "Proportional-Integral-Derivative control is foundational for precise motor speed and steering. We explain how each gain affects rise time, overshoot, and steady-state error, demonstrating manual tuning heuristics and anti-windup algorithms.",
+      "created_at": "2026-09-07T13:40:00Z",
+      "primary_topic": "Robotics",
+      "predicted_topics": [
+        "Robotics",
+        "Mathematics"
+      ],
+      "topic_confidence_scores": {
+        "Robotics": 0.92,
+        "Mathematics": 0.6
+      },
+      "creator_teaching_quality": 0.89,
+      "ocr_extracted_text": "u(t) = K_p e(t) + K_i int e(tau) dtau + K_d de/dt"
+    },
+    "pst_403": {
+      "id": "pst_403",
+      "creator_id": "usr_yusuf_09",
+      "title": "Forward and Inverse Kinematics for Robotic Manipulator Arms",
+      "body": "Calculating end-effector positioning from joint angles using Denavit-Hartenberg (DH) parameters, and solving the non-linear inverse problem through geometric and numerical Jacobian pseudo-inverse methods.",
+      "created_at": "2026-08-31T15:00:00Z",
+      "primary_topic": "Robotics",
+      "predicted_topics": [
+        "Robotics",
+        "Mathematics"
+      ],
+      "topic_confidence_scores": {
+        "Robotics": 0.93,
+        "Mathematics": 0.7
+      },
+      "creator_teaching_quality": 0.78,
+      "ocr_extracted_text": null
+    },
+    "pst_404": {
+      "id": "pst_404",
+      "creator_id": "usr_yusuf_09",
+      "title": "SLAM Fundamentals: LiDAR Mapping with Extended Kalman Filters",
+      "body": "Simultaneous Localization and Mapping enables mobile robots to navigate unknown terrain. This lesson details sensor noise modeling, state estimation with Extended Kalman Filters (EKF), and particle-filter-based FastSLAM.",
+      "created_at": "2026-08-24T10:10:00Z",
+      "primary_topic": "Robotics",
+      "predicted_topics": [
+        "Robotics",
+        "AI/Data"
+      ],
+      "topic_confidence_scores": {
+        "Robotics": 0.91,
+        "AI/Data": 0.5
+      },
+      "creator_teaching_quality": 0.74,
+      "ocr_extracted_text": null
+    },
+    "pst_405": {
+      "id": "pst_405",
+      "creator_id": "usr_yusuf_09",
+      "title": "Motion Planning with A* and Rapidly-exploring Random Trees (RRT)",
+      "body": "Path planning in high-dimensional configuration spaces. We compare grid-based search using A* against sampling-based RRT and RRT* for obstacle avoidance and kinematic feasibility in robotic arms.",
+      "created_at": "2026-08-19T14:45:00Z",
+      "primary_topic": "Robotics",
+      "predicted_topics": [
+        "Robotics"
+      ],
+      "topic_confidence_scores": {
+        "Robotics": 0.87
+      },
+      "creator_teaching_quality": 0.5,
+      "ocr_extracted_text": null
+    },
+    "pst_501": {
+      "id": "pst_501",
+      "creator_id": "usr_david_10",
+      "title": "Modern Cryptography: RSA, Elliptic Curves, and Diffie-Hellman Key Exchange",
+      "body": "Asymmetric encryption demystified. We explore the discrete logarithm problem, how Elliptic Curve Cryptography (ECC) achieves 256-bit security with smaller key sizes than 3072-bit RSA, and how ephemeral Diffie-Hellman guarantees perfect forward secrecy.",
+      "created_at": "2026-09-13T18:00:00Z",
+      "primary_topic": "Cybersecurity",
+      "predicted_topics": [
+        "Cybersecurity",
+        "Mathematics"
+      ],
+      "topic_confidence_scores": {
+        "Cybersecurity": 0.96,
+        "Mathematics": 0.72
+      },
+      "creator_teaching_quality": 0.94,
+      "ocr_extracted_text": null
+    },
+    "pst_502": {
+      "id": "pst_502",
+      "creator_id": "usr_david_10",
+      "title": "Defending Web Applications Against OWASP Top 10 Vulnerabilities",
+      "body": "A hands-on analysis of modern web exploits: SQL injection mitigation via parameterized queries, preventing Cross-Site Scripting (XSS) with strict Content Security Policies (CSP), and securing authentication tokens against CSRF.",
+      "created_at": "2026-09-09T12:30:00Z",
+      "primary_topic": "Cybersecurity",
+      "predicted_topics": [
+        "Cybersecurity",
+        "Programming/Web"
+      ],
+      "topic_confidence_scores": {
+        "Cybersecurity": 0.92,
+        "Programming/Web": 0.68
+      },
+      "creator_teaching_quality": 0.91,
+      "ocr_extracted_text": null
+    },
+    "pst_503": {
+      "id": "pst_503",
+      "creator_id": "usr_nour_11",
+      "title": "Zero Trust Architecture Principles and Mutual TLS (mTLS) Implementation",
+      "body": "Never trust, always verify. We explain how perimeter security models fail against insider threats, how identity-based microsegmentation works, and how to issue short-lived x509 certificates for service-to-service mutual authentication.",
+      "created_at": "2026-08-29T14:00:00Z",
+      "primary_topic": "Cybersecurity",
+      "predicted_topics": [
+        "Cybersecurity"
+      ],
+      "topic_confidence_scores": {
+        "Cybersecurity": 0.9
+      },
+      "creator_teaching_quality": 0.65,
+      "ocr_extracted_text": null
+    },
+    "pst_504": {
+      "id": "pst_504",
+      "creator_id": "usr_nour_11",
+      "title": "Secure Password Storage: Argon2id, PBKDF2, and Salting Strategies",
+      "body": "Why MD5 and SHA-256 are completely unacceptable for credential storage. We detail memory-hard hashing algorithms with Argon2id, explaining how memory cost parameters thwart GPU and ASIC brute-force attacks.",
+      "created_at": "2026-08-22T09:15:00Z",
+      "primary_topic": "Cybersecurity",
+      "predicted_topics": [
+        "Cybersecurity"
+      ],
+      "topic_confidence_scores": {
+        "Cybersecurity": 0.93
+      },
+      "creator_teaching_quality": 0.62,
+      "ocr_extracted_text": null
+    },
+    "pst_505": {
+      "id": "pst_505",
+      "creator_id": "usr_nour_11",
+      "title": "Network Packet Analysis with Wireshark: Detecting Anomalies and Intrusions",
+      "body": "Inspecting network traffic at packet level. Learn TCP three-way handshake analysis, spotting SYN flood attacks, dissecting DNS tunneling exfiltration, and writing custom Berkeley Packet Filters (BPF).",
+      "created_at": "2026-08-18T16:20:00Z",
+      "primary_topic": "Cybersecurity",
+      "predicted_topics": [
+        "Cybersecurity"
+      ],
+      "topic_confidence_scores": {
+        "Cybersecurity": 0.88
+      },
+      "creator_teaching_quality": 0.5,
+      "ocr_extracted_text": null
+    },
+    "pst_601": {
+      "id": "pst_601",
+      "creator_id": "usr_chloe_12",
+      "title": "Color Theory and Accessible Contrast in Digital Product Design",
+      "body": "Designing interfaces that are legible for all users. We explore HSL and OKLCH color spaces, luminance calculation, and satisfying WCAG 2.1 AA and AAA contrast ratios for body text and interactive UI elements.",
+      "created_at": "2026-09-12T10:00:00Z",
+      "primary_topic": "Design",
+      "predicted_topics": [
+        "Design"
+      ],
+      "topic_confidence_scores": {
+        "Design": 0.97
+      },
+      "creator_teaching_quality": 0.87,
+      "ocr_extracted_text": null
+    },
+    "pst_602": {
+      "id": "pst_602",
+      "creator_id": "usr_chloe_12",
+      "title": "Design Systems at Scale: Tokens, Typography Scales, and Component APIs",
+      "body": "Bridging the gap between Figma and frontend code. How to establish multi-tier design tokens (global, semantic, component), create modular typography scales using modular scales (1.250 major third), and build robust component libraries.",
+      "created_at": "2026-09-05T15:30:00Z",
+      "primary_topic": "Design",
+      "predicted_topics": [
+        "Design",
+        "Programming/Web"
+      ],
+      "topic_confidence_scores": {
+        "Design": 0.91,
+        "Programming/Web": 0.6
+      },
+      "creator_teaching_quality": 0.85,
+      "ocr_extracted_text": null
+    },
+    "pst_603": {
+      "id": "pst_603",
+      "creator_id": "usr_mona_13",
+      "title": "Information Architecture: Card Sorting and Navigation Hierarchy",
+      "body": "Organizing complex digital knowledge platforms so users find information intuitively. We demonstrate open vs closed card sorting methods, tree testing for mental model verification, and crafting clear hierarchical taxonomies.",
+      "created_at": "2026-08-27T11:45:00Z",
+      "primary_topic": "Design",
+      "predicted_topics": [
+        "Design"
+      ],
+      "topic_confidence_scores": {
+        "Design": 0.89
+      },
+      "creator_teaching_quality": 0.5,
+      "ocr_extracted_text": null
+    },
+    "pst_604": {
+      "id": "pst_604",
+      "creator_id": "usr_mona_13",
+      "title": "Micro-Interactions and Motion Design: Using Physics for Intuitive UI",
+      "body": "Subtle animations transform static interfaces into dynamic experiences. Learn spring physics, cubic-bezier timing functions, choreography of enter/exit transitions, and respecting reduced-motion accessibility preferences.",
+      "created_at": "2026-08-21T13:10:00Z",
+      "primary_topic": "Design",
+      "predicted_topics": [
+        "Design",
+        "Programming/Web"
+      ],
+      "topic_confidence_scores": {
+        "Design": 0.86,
+        "Programming/Web": 0.45
+      },
+      "creator_teaching_quality": 0.5,
+      "ocr_extracted_text": null
+    },
+    "pst_605": {
+      "id": "pst_605",
+      "creator_id": "usr_mona_13",
+      "title": "Usability Testing Methods: Formative vs Summative User Research",
+      "body": "Validating design assumptions before engineering starts. We outline think-aloud protocols, measuring System Usability Scale (SUS) scores, and translating quantitative behavioral observations into actionable product improvements.",
+      "created_at": "2026-08-18T09:00:00Z",
+      "primary_topic": "Design",
+      "predicted_topics": [
+        "Design"
+      ],
+      "topic_confidence_scores": {
+        "Design": 0.85
+      },
+      "creator_teaching_quality": 0.5,
+      "ocr_extracted_text": null
+    },
+    "pst_701": {
+      "id": "pst_701",
+      "creator_id": "usr_faris_14",
+      "title": "Linear Algebra: Intuitive Understanding of Eigenvalues and Eigenvectors",
+      "body": "Eigenvectors are directions where linear transformations act purely as scalar stretching. We visualize transformation matrices in 2D and 3D, calculate characteristic polynomials, and connect eigendecomposition to Principal Component Analysis (PCA).",
+      "created_at": "2026-09-14T07:30:00Z",
+      "primary_topic": "Mathematics",
+      "predicted_topics": [
+        "Mathematics",
+        "AI/Data"
+      ],
+      "topic_confidence_scores": {
+        "Mathematics": 0.98,
+        "AI/Data": 0.65
+      },
+      "creator_teaching_quality": 0.95,
+      "ocr_extracted_text": "A * v = lambda * v"
+    },
+    "pst_702": {
+      "id": "pst_702",
+      "creator_id": "usr_faris_14",
+      "title": "Probability Distributions: From Bernoulli to Normal and Poisson Processes",
+      "body": "A comprehensive guide connecting discrete and continuous probability models. Understanding probability mass functions vs probability density functions, the Central Limit Theorem, and modeling real-world arrival rates with Poisson distributions.",
+      "created_at": "2026-09-07T16:00:00Z",
+      "primary_topic": "Mathematics",
+      "predicted_topics": [
+        "Mathematics"
+      ],
+      "topic_confidence_scores": {
+        "Mathematics": 0.94
+      },
+      "creator_teaching_quality": 0.92,
+      "ocr_extracted_text": null
+    },
+    "pst_703": {
+      "id": "pst_703",
+      "creator_id": "usr_leila_15",
+      "title": "Multivariate Calculus: Gradient Vectors, Jacobians, and Hessians",
+      "body": "Extending single-variable derivatives to vector calculus. We explain the geometric interpretation of the gradient as the direction of steepest ascent, the Jacobian matrix of partial derivatives, and the Hessian matrix for second-order optimization curvature.",
+      "created_at": "2026-08-28T14:20:00Z",
+      "primary_topic": "Mathematics",
+      "predicted_topics": [
+        "Mathematics",
+        "AI/Data"
+      ],
+      "topic_confidence_scores": {
+        "Mathematics": 0.93,
+        "AI/Data": 0.55
+      },
+      "creator_teaching_quality": 0.7,
+      "ocr_extracted_text": null
+    },
+    "pst_704": {
+      "id": "pst_704",
+      "creator_id": "usr_leila_15",
+      "title": "Graph Theory Fundamentals: Shortest Paths, Trees, and Network Flows",
+      "body": "Graphs are the ultimate relational data structure. This post covers adjacency representations, Dijkstra's algorithm, minimum spanning trees with Kruskal's and Prim's, and max-flow min-cut theorem applications in network routing.",
+      "created_at": "2026-08-23T11:00:00Z",
+      "primary_topic": "Mathematics",
+      "predicted_topics": [
+        "Mathematics",
+        "Programming/Web"
+      ],
+      "topic_confidence_scores": {
+        "Mathematics": 0.91,
+        "Programming/Web": 0.5
+      },
+      "creator_teaching_quality": 0.68,
+      "ocr_extracted_text": null
+    },
+    "pst_705": {
+      "id": "pst_705",
+      "creator_id": "usr_leila_15",
+      "title": "Discrete Mathematics: Proof by Induction and Combinatorial Counting",
+      "body": "Mastering mathematical rigor for computer science. We demonstrate the base step and inductive step across recurrence relations, the Pigeonhole Principle, and permutations vs combinations with replacement.",
+      "created_at": "2026-08-19T10:30:00Z",
+      "primary_topic": "Mathematics",
+      "predicted_topics": [
+        "Mathematics"
+      ],
+      "topic_confidence_scores": {
+        "Mathematics": 0.89
+      },
+      "creator_teaching_quality": 0.5,
+      "ocr_extracted_text": null
+    },
+    "pst_801": {
+      "id": "pst_801",
+      "creator_id": "usr_arthur_16",
+      "title": "Quantum Mechanics: The Double-Slit Experiment and Wave-Particle Duality",
+      "body": "Investigating the foundations of modern physics. We explain the de Broglie wavelength, the collapse of the wave function upon measurement, and Heisenberg's Uncertainty Principle with mathematical clarity.",
+      "created_at": "2026-09-13T12:00:00Z",
+      "primary_topic": "Natural Sciences",
+      "predicted_topics": [
+        "Natural Sciences",
+        "Mathematics"
+      ],
+      "topic_confidence_scores": {
+        "Natural Sciences": 0.97,
+        "Mathematics": 0.5
+      },
+      "creator_teaching_quality": 0.93,
+      "ocr_extracted_text": "lambda = h / p"
+    },
+    "pst_802": {
+      "id": "pst_802",
+      "creator_id": "usr_arthur_16",
+      "title": "Thermodynamics: Entropy, Free Energy, and the Second Law",
+      "body": "Why time moves in one direction. We explore microscopic states versus macroscopic entropy using Boltzmann's formula S = k ln W, Gibbs Free Energy in chemical reactions, and Carnot cycle efficiency limits.",
+      "created_at": "2026-09-06T09:15:00Z",
+      "primary_topic": "Natural Sciences",
+      "predicted_topics": [
+        "Natural Sciences"
+      ],
+      "topic_confidence_scores": {
+        "Natural Sciences": 0.94
+      },
+      "creator_teaching_quality": 0.89,
+      "ocr_extracted_text": "Delta G = Delta H - T * Delta S"
+    },
+    "pst_803": {
+      "id": "pst_803",
+      "creator_id": "usr_layla_17",
+      "title": "Cellular Respiration: Glycolysis, Krebs Cycle, and Electron Transport",
+      "body": "How biological cells generate ATP. A step-by-step breakdown of anaerobic glycolysis in the cytoplasm, the citric acid cycle in the mitochondrial matrix, and the proton gradient driving ATP synthase.",
+      "created_at": "2026-08-29T16:40:00Z",
+      "primary_topic": "Natural Sciences",
+      "predicted_topics": [
+        "Natural Sciences"
+      ],
+      "topic_confidence_scores": {
+        "Natural Sciences": 0.92
+      },
+      "creator_teaching_quality": 0.5,
+      "ocr_extracted_text": null
+    },
+    "pst_804": {
+      "id": "pst_804",
+      "creator_id": "usr_layla_17",
+      "title": "Organic Chemistry: Reaction Mechanisms and Nucleophilic Substitution (SN1 vs SN2)",
+      "body": "Predicting chemical behavior through molecular orbital interactions. We contrast carbocation stability and racemization in unimolecular SN1 reactions against steric hindrance and backside attack in bimolecular SN2 reactions.",
+      "created_at": "2026-08-22T14:10:00Z",
+      "primary_topic": "Natural Sciences",
+      "predicted_topics": [
+        "Natural Sciences"
+      ],
+      "topic_confidence_scores": {
+        "Natural Sciences": 0.91
+      },
+      "creator_teaching_quality": 0.5,
+      "ocr_extracted_text": null
+    },
+    "pst_805": {
+      "id": "pst_805",
+      "creator_id": "usr_layla_17",
+      "title": "Astrophysics: Stellar Evolution and the Chandrasekhar Mass Limit",
+      "body": "The lifecycle of stars from stellar nebulae to supernovae. We detail nuclear fusion cycles in main sequence stars, electron degeneracy pressure, and why white dwarfs exceeding 1.4 solar masses inevitably collapse into neutron stars or black holes.",
+      "created_at": "2026-08-18T13:00:00Z",
+      "primary_topic": "Natural Sciences",
+      "predicted_topics": [
+        "Natural Sciences"
+      ],
+      "topic_confidence_scores": {
+        "Natural Sciences": 0.9
+      },
+      "creator_teaching_quality": 0.5,
+      "ocr_extracted_text": null
+    }
+  }
+}

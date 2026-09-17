@@ -6,3 +6,4 @@ __pycache__/
 
 documents/*
 !documents/Amr_Post_Recommendation_Plan.md
+!documents/Amr_7_Day_Execution_Plan.md

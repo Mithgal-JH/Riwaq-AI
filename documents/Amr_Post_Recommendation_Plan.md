@@ -43,27 +43,30 @@ The objective of this feature is to build and deploy a dedicated, high-speed, co
 ## 3. What I Am Going to Build
 
 ### 3.1 Learner Profile Modeling
-* **Cold-Start Learner:** Mean embedding vector generated from declared onboarding topics and current learning direction.
-* **Active (Warm) Learner:** Dynamic profile vector updated incrementally using an Exponential Moving Average of declared interests and recent positive interactions (liked, saved, and reposted posts):
-  $$u_{\text{warm}} = 0.6 \cdot u_{\text{declared}} + 0.4 \cdot \left(\frac{1}{N} \sum_{i=1}^{N} v_i\right)$$
-  *(where $v_i$ represents the 384-dimensional embedding vector of the $i$-th interacted post)*
+* **Cold-Start Learner:** Mean embedding vector generated from declared onboarding topics and current learning direction, normalized to unit length ($\|u\|_2 = 1.0$).
+* **Active (Warm) Learner:** Dynamic profile vector combining declared interests and recent positive interactions (liked, saved, and reposted posts), strictly re-normalized to unit length:
+  $$u_{\text{blend}} = 0.60 \cdot u_{\text{declared}} + 0.40 \cdot \left(\frac{1}{N} \sum_{i=1}^{N} v_i\right)$$
+  $$u_{\text{warm}} = \begin{cases} \frac{u_{\text{blend}}}{\|u_{\text{blend}}\|_2} & \text{if } \|u_{\text{blend}}\|_2 \ge 10^{-8} \\ u_{\text{declared}} & \text{otherwise (degenerate fallback)} \end{cases}$$
+  *(where $v_i$ represents the unit-normalized 384-dimensional embedding vector of the $i$-th interacted post)*
 
 ### 3.2 Post Semantic Embedding
-* When a post is published or updated, combine `title + " " + description/body` and pass it through `all-MiniLM-L6-v2` to produce a persistent 384-dimensional vector $v_{\text{post}}$.
+* When a post is published or updated, combine `title + " " + description/body` (+ OCR text if present) and pass it through `all-MiniLM-L6-v2` to produce a persistent unit-normalized 384-dimensional vector $v_{\text{post}}$ ($\|v_{\text{post}}\|_2 = 1.0$).
 
 ### 3.3 Candidate Retrieval
-* Compute cosine similarity between the learner vector $u$ and all pre-filtered candidate post vectors $v$:
-  $$\text{SemanticFit}(u, v) = \frac{u \cdot v}{\|u\|_2 \cdot \|v\|_2}$$
+* Compute cosine similarity between the unit-normalized learner vector $u$ and candidate post vectors $v$:
+  $$\text{SemanticFit}(u, v) = \text{clamp}(u \cdot v, \, 0.0, \, 1.0)$$
+  *(reduces to a fast matrix dot product because both vectors are unit-normalized)*
 
 ### 3.4 Composite Ranking Pipeline
 Calculate the final score for each eligible candidate post:
 $$\text{PostScore} = 0.70 \times \text{SemanticFit} + 0.15 \times \text{TopicFit} + 0.10 \times \text{CreatorQuality} + 0.05 \times \text{Freshness}$$
 
-* **`SemanticFit` (0.70):** Cosine similarity between user profile vector and post vector.
-* **`TopicFit` (0.15):** Match between candidate post topics and user's declared topics.
-* **`CreatorQuality` (0.10):** Author's peer teaching reputation score provided by Zayan (defaults to 0.50 neutral baseline).
-* **`Freshness` (0.05):** Exponential half-life decay function with a 14-day half-life:
-  $$\text{Freshness}(\Delta t) = \exp\left(-\frac{\Delta t}{14\text{ days}}\right)$$
+* **`SemanticFit` (0.70):** Cosine similarity between user profile vector and post vector, clamped to $[0.0, 1.0]$.
+* **`TopicFit` (0.15):** Containment match between candidate post topics and user's declared topics (1.00 for primary hit, $0.60 \times \text{overlap}$ for secondary hit).
+* **`CreatorQuality` (0.10):** Author's peer teaching reputation score provided by Zayan (defaults to 0.50 neutral baseline; self-authored mock values during staging).
+* **`Freshness` (0.05):** Exponential true half-life decay function with a 14-day half-life:
+  $$\text{Freshness}(\Delta t) = \exp\left(-\frac{\ln(2) \cdot \Delta t}{14\text{ days}}\right)$$
+  *(a post aged exactly 14 days evaluates to exactly 0.50)*
 
 ### 3.5 Feed Diversity & Exclusion Rules
 * **Exclusion Filter:** Remove posts already seen, saved, or authored by the learner.

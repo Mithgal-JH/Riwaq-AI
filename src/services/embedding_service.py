@@ -41,6 +41,8 @@ class EmbeddingService:
         )
         return np.asarray(vector, dtype=np.float32)
 
+    encode_text = embed_text
+
     def embed_batch(self, texts: list[str], batch_size: int = 32) -> np.ndarray:
         """
         Embed a batch of text strings into an (N, 384) array of normalized vectors.

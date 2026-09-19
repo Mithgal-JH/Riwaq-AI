@@ -63,6 +63,10 @@ HIGH_RATED_CREATOR_THRESHOLD: Final[float] = 0.80
 # Empirically measured p90 from data/score_distribution.json (Sep 17, 2026 run)
 SEMANTIC_HIGH_THRESHOLD: Final[float] = 0.285
 
+# Reason Code Activation Thresholds (Day 4)
+REASON_SEMANTIC_THRESHOLD: Final[float] = 0.75
+REASON_FRESH_THRESHOLD: Final[float] = 0.85
+
 
 # Request Batch Sizing and Limits
 MAX_CANDIDATES_PER_REQUEST: Final[int] = 100

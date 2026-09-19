@@ -123,9 +123,10 @@ def test_vector_store_disk_persistence(tmp_path: Path) -> None:
     assert new_store.contains("p1")
     assert new_store.contains("p2")
 
-    np.testing.assert_allclose(
-        new_store.get_vector("p1"), store.get_vector("p1"), rtol=1e-5
-    )
+    v1 = new_store.get_vector("p1")
+    v2 = store.get_vector("p1")
+    assert v1 is not None and v2 is not None
+    np.testing.assert_allclose(v1, v2, rtol=1e-5)
 
 
 def test_candidate_vector_extraction(loaded_vector_store: VectorStore) -> None:

@@ -159,3 +159,64 @@ def test_post_upsert_event_and_immediate_recommendation(client: TestClient) -> N
 
     returned_ids = [item["id"] for item in rec_data["items"]]
     assert new_post_id in returned_ids
+
+
+def test_recommendation_request_with_uppercase_topic_formats(client: TestClient) -> None:
+    """Verify API accepts Haitham's uppercase snake_case topic format."""
+    payload = {
+        "request_id": "req_uppercase_topics",
+        "user_id": "usr_test_norm",
+        "declared_topics": ["AI_DATA", "PROGRAMMING_WEB"],
+        "learning_direction": "Deep Learning Systems",
+        "eligible_candidate_ids": ["pst_101", "pst_102", "pst_201"],
+        "limit": 3,
+    }
+
+    resp = client.post("/api/v1/recommendations/posts", json=payload)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["count"] > 0
+    assert len(data["items"]) <= 3
+
+
+def test_post_upsert_with_content_analysis_safety_filtering(client: TestClient) -> None:
+    """Verify an upserted post flagged with DOWNRANK_OR_HOLD is filtered out from recommendations."""
+    held_post_id = "pst_held_by_moderation_888"
+    event_payload = {
+        "post_id": held_post_id,
+        "creator_id": "usr_flagged_author",
+        "title": "Spam and Low Quality Guide",
+        "body": "This guide contains spam keywords and clickbait text.",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "topics": {"primary_topics": [{"topic": "AI_DATA", "confidence": 0.99}]},
+        "difficulty": {"level": "EASY", "confidence": 0.85},
+        "safety": {
+            "status": "REVIEW_REQUIRED",
+            "risk_categories": ["ABUSE_OR_HARASSMENT"],
+            "review_required": True,
+            "recommendation_signal": "DOWNRANK_OR_HOLD",
+        },
+    }
+
+    # 1. Ingest flagged post
+    upsert_resp = client.post("/api/v1/events/post-upserted", json=event_payload)
+    assert upsert_resp.status_code == 200
+
+    # 2. Request recommendation including the held post alongside a safe post
+    rec_payload = {
+        "request_id": "req_held_test",
+        "user_id": "usr_clean_feed",
+        "declared_topics": ["AI_DATA"],
+        "learning_direction": "Data Science",
+        "eligible_candidate_ids": [held_post_id, "pst_201"],
+        "limit": 5,
+    }
+
+    rec_resp = client.post("/api/v1/recommendations/posts", json=rec_payload)
+    assert rec_resp.status_code == 200
+    rec_data = rec_resp.json()
+
+    # The held post must NOT be in the recommendations
+    returned_ids = [item["id"] for item in rec_data["items"]]
+    assert held_post_id not in returned_ids
+    assert "pst_201" in returned_ids

@@ -183,3 +183,61 @@ def test_mock_posts_dataset_integrity():
         assert 0.0 <= p.creator_teaching_quality <= 1.0
         assert len(p.title) > 5
         assert len(p.body) > 20
+
+
+def test_topic_taxonomy_bidirectional_normalization():
+    """Verify TopicTaxonomy supports both Haitham's uppercase format and display format."""
+    assert TopicTaxonomy("AI_DATA") == TopicTaxonomy.AI_DATA
+    assert TopicTaxonomy("AI/Data") == TopicTaxonomy.AI_DATA
+    assert TopicTaxonomy("PROGRAMMING_WEB") == TopicTaxonomy.PROGRAMMING_WEB
+    assert TopicTaxonomy("Programming/Web") == TopicTaxonomy.PROGRAMMING_WEB
+    assert TopicTaxonomy.normalize("ELECTRONICS_EMBEDDED") == TopicTaxonomy.ELECTRONICS_EMBEDDED
+    assert TopicTaxonomy.normalize("Cybersecurity") == TopicTaxonomy.CYBERSECURITY
+
+    # Verify RecommendationRequest accepts uppercase format
+    req = RecommendationRequest(
+        request_id="req_test_norm",
+        user_id="usr_norm",
+        declared_topics=["AI_DATA", "PROGRAMMING_WEB"],
+        learning_direction="Deep Learning",
+        eligible_candidate_ids=["pst_101"],
+    )
+    assert req.declared_topics == [TopicTaxonomy.AI_DATA, TopicTaxonomy.PROGRAMMING_WEB]
+
+
+def test_post_record_with_content_analysis_metadata():
+    """Verify PostRecord accepts difficulty and safety fields from Content Analysis contract."""
+    post = PostRecord(
+        id="pst_test_ca",
+        creator_id="usr_creator_01",
+        title="Neural Network Architectures in PyTorch",
+        body="Comprehensive guide on CNNs, RNNs, and Transformers.",
+        created_at=datetime.now(timezone.utc),
+        primary_topic=TopicTaxonomy.AI_DATA,
+        difficulty_level="INTERMEDIATE",
+        difficulty_confidence=0.9132,
+        safety_status="SAFE",
+        recommendation_signal="ALLOW",
+    )
+    assert post.difficulty_level == "INTERMEDIATE"
+    assert post.difficulty_confidence == 0.9132
+    assert post.safety_status == "SAFE"
+    assert post.recommendation_signal == "ALLOW"
+
+
+def test_post_upsert_event_with_content_analysis_metadata():
+    """Verify PostUpsertEvent parses Content Analysis contract payload."""
+    event = PostUpsertEvent(
+        post_id="pst_ca_001",
+        creator_id="usr_author_55",
+        title="Safe Web Development with Flask",
+        body="Building secure endpoints with token authentication.",
+        created_at=datetime.now(timezone.utc),
+        primary_topic=TopicTaxonomy.PROGRAMMING_WEB,
+        difficulty={"level": "EASY", "confidence": 0.95},
+        safety={"status": "SAFE", "recommendation_signal": "ALLOW"},
+        topics={"primary_topics": [{"topic": "PROGRAMMING_WEB", "confidence": 0.98}]},
+    )
+    assert event.primary_topic == TopicTaxonomy.PROGRAMMING_WEB
+    assert event.difficulty["level"] == "EASY"
+    assert event.safety["recommendation_signal"] == "ALLOW"

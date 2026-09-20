@@ -43,3 +43,21 @@ class PostRecord(BaseModel):
         default=None,
         description="Optional text extracted via OCR from diagrams/slides/code screenshots",
     )
+    difficulty_level: str | None = Field(
+        default=None,
+        description="Difficulty level from Content Analysis API (EASY, INTERMEDIATE, ADVANCED)",
+    )
+    difficulty_confidence: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+        description="Confidence score for predicted difficulty",
+    )
+    safety_status: str | None = Field(
+        default="SAFE",
+        description="Safety status from Content Analysis API (SAFE, REVIEW_REQUIRED)",
+    )
+    recommendation_signal: str | None = Field(
+        default="ALLOW",
+        description="Moderation recommendation signal (ALLOW, DOWNRANK_OR_HOLD)",
+    )

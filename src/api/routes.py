@@ -187,16 +187,46 @@ def handle_post_upsert(
     catalog: dict[str, PostRecord] = state.catalog
     embedding_service: EmbeddingService = state.embedding_service
 
-    # Infer or fallback topic if upstream classifier is offline
-    inferred_topic = TopicTaxonomy.PROGRAMMING_WEB
-    text_lower = f"{event.title} {event.body}".lower()
-    for topic in TopicTaxonomy:
-        topic_name = topic.value.lower()
-        if any(part in text_lower for part in topic_name.split("/")):
-            inferred_topic = topic
-            break
+    # Extract topic from explicit field or nested topics object
+    explicit_topic: TopicTaxonomy | None = None
+    if event.primary_topic:
+        explicit_topic = TopicTaxonomy.normalize(event.primary_topic)
+    elif event.topics and isinstance(event.topics, dict):
+        prim_list = event.topics.get("primary_topics", [])
+        if prim_list and isinstance(prim_list, list) and isinstance(prim_list[0], dict):
+            raw_top = prim_list[0].get("topic")
+            if raw_top:
+                try:
+                    explicit_topic = TopicTaxonomy.normalize(raw_top)
+                except (ValueError, KeyError, TypeError) as exc:
+                    logger.debug("Failed to normalize topic %s: %s", raw_top, exc)
 
-    # Build PostRecord with decoupled fallbacks
+    # Extract difficulty and safety metadata
+    diff_level: str | None = None
+    diff_conf: float | None = None
+    if event.difficulty and isinstance(event.difficulty, dict):
+        diff_level = event.difficulty.get("level")
+        diff_conf = event.difficulty.get("confidence")
+
+    safety_stat: str = "SAFE"
+    rec_sig: str = "ALLOW"
+    if event.safety and isinstance(event.safety, dict):
+        safety_stat = event.safety.get("status", "SAFE")
+        rec_sig = event.safety.get("recommendation_signal", "ALLOW")
+
+    # Infer or fallback topic if upstream classifier is offline
+    if explicit_topic:
+        inferred_topic = explicit_topic
+    else:
+        inferred_topic = TopicTaxonomy.PROGRAMMING_WEB
+        text_lower = f"{event.title} {event.body}".lower()
+        for topic in TopicTaxonomy:
+            topic_name = topic.value.lower()
+            if any(part in text_lower for part in topic_name.split("/")):
+                inferred_topic = topic
+                break
+
+    # Build PostRecord with decoupled fallbacks and Content Analysis metadata
     post_record = PostRecord(
         id=event.post_id,
         creator_id=event.creator_id,
@@ -207,6 +237,10 @@ def handle_post_upsert(
         predicted_topics=[],
         topic_confidence_scores={inferred_topic.value: 1.0},
         creator_teaching_quality=DEFAULT_CREATOR_QUALITY,
+        difficulty_level=diff_level,
+        difficulty_confidence=diff_conf,
+        safety_status=safety_stat,
+        recommendation_signal=rec_sig,
     )
 
     # Encode embedding dynamically

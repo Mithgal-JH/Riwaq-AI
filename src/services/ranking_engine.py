@@ -200,6 +200,19 @@ class RankingEngine:
             if post is None:
                 continue
 
+            # Content Analysis Safety Moderation Gate
+            # Filter out posts flagged as DOWNRANK_OR_HOLD or REVIEW_REQUIRED
+            rec_signal = getattr(post, "recommendation_signal", "ALLOW")
+            safety_stat = getattr(post, "safety_status", "SAFE")
+            if rec_signal == "DOWNRANK_OR_HOLD" or safety_stat == "REVIEW_REQUIRED":
+                logger.info(
+                    "Excluding candidate post %s due to safety flag: signal=%s, status=%s",
+                    pid,
+                    rec_signal,
+                    safety_stat,
+                )
+                continue
+
             raw_sem = semantic_scores.get(pid, 0.0)
             sem_score = compute_semantic_score(raw_sem)
             top_score = compute_topic_score(post, declared_topics)

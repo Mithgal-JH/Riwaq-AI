@@ -232,3 +232,31 @@ def test_end_to_end_with_mock_catalog(mock_catalog: dict[str, PostRecord]) -> No
     assert ranked[0].primary_topic == TopicTaxonomy.PROGRAMMING_WEB
     assert ranked[0].topic_score == 1.0
     assert ranked[0].final_score > 0.70
+
+
+def test_ranking_engine_safety_gate_exclusion(sample_post: PostRecord) -> None:
+    """Verify posts with DOWNRANK_OR_HOLD or REVIEW_REQUIRED are excluded by safety gate."""
+    safe_post = sample_post
+    unsafe_post = PostRecord(
+        id="pst_unsafe_99",
+        creator_id="usr_creator_99",
+        title="Harmful Content Guide",
+        body="Content that violates platform safety policy.",
+        created_at=datetime(2026, 9, 15, 12, 0, 0, tzinfo=timezone.utc),
+        primary_topic=TopicTaxonomy.PROGRAMMING_WEB,
+        safety_status="REVIEW_REQUIRED",
+        recommendation_signal="DOWNRANK_OR_HOLD",
+    )
+
+    catalog = {safe_post.id: safe_post, unsafe_post.id: unsafe_post}
+    engine = RankingEngine(catalog)
+
+    ranked = engine.rank_candidates(
+        candidate_ids=[safe_post.id, unsafe_post.id],
+        semantic_scores={safe_post.id: 0.90, unsafe_post.id: 0.99},
+        declared_topics=[TopicTaxonomy.PROGRAMMING_WEB],
+    )
+
+    # Only safe_post should pass through, despite unsafe_post having higher semantic score
+    assert len(ranked) == 1
+    assert ranked[0].post_id == safe_post.id

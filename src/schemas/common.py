@@ -13,6 +13,26 @@ class TopicTaxonomy(str, Enum):
     MATHEMATICS = "Mathematics"
     NATURAL_SCIENCES = "Natural Sciences"
 
+    @classmethod
+    def _missing_(cls, value: object) -> "TopicTaxonomy | None":
+        """
+        Support uppercase snake_case (e.g., 'AI_DATA', 'PROGRAMMING_WEB')
+        from Haitham's Content Analysis API contract.
+        """
+        if isinstance(value, str):
+            normalized = value.strip().upper().replace("/", "_").replace(" ", "_")
+            for member in cls:
+                if member.name == normalized:
+                    return member
+        return None
+
+    @classmethod
+    def normalize(cls, value: "str | TopicTaxonomy") -> "TopicTaxonomy":
+        """Normalize any supported topic string or enum instance to TopicTaxonomy."""
+        if isinstance(value, cls):
+            return value
+        return cls(value)
+
 
 class ReasonCode(str, Enum):
     """Explainable reason codes mapped to frontend post card badges."""

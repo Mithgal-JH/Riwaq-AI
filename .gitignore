@@ -2,7 +2,7 @@
 *.pyc
 __pycache__/
 .pytest_cache/
-
+branch
 
 documents/*
 !documents/Amr_Post_Recommendation_Plan.md

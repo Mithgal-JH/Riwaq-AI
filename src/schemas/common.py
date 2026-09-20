@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class TopicTaxonomy(str, Enum):
-    """The 8 agreed subject taxonomy classes for BinX educational posts."""
+    """12-class subject taxonomy for BinX educational posts (aligned with Haitham's Content Analysis API)."""
 
     PROGRAMMING_WEB = "Programming/Web"
     AI_DATA = "AI/Data"
@@ -12,6 +12,10 @@ class TopicTaxonomy(str, Enum):
     DESIGN = "Design"
     MATHEMATICS = "Mathematics"
     NATURAL_SCIENCES = "Natural Sciences"
+    HEALTH_MEDICINE = "Health/Medicine"
+    BUSINESS_ECONOMICS = "Business/Economics"
+    LANG_COMMUNICATION = "Language/Communication"
+    HUMANITIES_SOCIAL = "Humanities/Social"
 
     @classmethod
     def _missing_(cls, value: object) -> "TopicTaxonomy | None":

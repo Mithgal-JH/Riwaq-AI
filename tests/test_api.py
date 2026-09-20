@@ -220,3 +220,67 @@ def test_post_upsert_with_content_analysis_safety_filtering(client: TestClient) 
     returned_ids = [item["id"] for item in rec_data["items"]]
     assert held_post_id not in returned_ids
     assert "pst_201" in returned_ids
+
+
+def test_post_upsert_with_top_level_needs_review_flag_is_held(client: TestClient) -> None:
+    """Verify an upserted post with top-level needs_review=True (even with no safety block) is held."""
+    unverified_id = "pst_unverified_model_failure_777"
+    event_payload = {
+        "post_id": unverified_id,
+        "creator_id": "usr_unknown_author",
+        "title": "Unverified Post After Upstream Partial Failure",
+        "body": "Post forwarded to recommendation queue while awaiting manual check.",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "needs_review": True,
+        "processing_status": "partial",
+        # safety block is omitted completely
+    }
+
+    upsert_resp = client.post("/api/v1/events/post-upserted", json=event_payload)
+    assert upsert_resp.status_code == 200
+
+    rec_payload = {
+        "request_id": "req_needs_review_test",
+        "user_id": "usr_clean_feed",
+        "declared_topics": ["PROGRAMMING_WEB"],
+        "learning_direction": "Web",
+        "eligible_candidate_ids": [unverified_id, "pst_101"],
+        "limit": 5,
+    }
+
+    rec_resp = client.post("/api/v1/recommendations/posts", json=rec_payload)
+    assert rec_resp.status_code == 200
+    returned_ids = [item["id"] for item in rec_resp.json()["items"]]
+    assert unverified_id not in returned_ids
+    assert "pst_101" in returned_ids
+
+
+def test_global_exception_handler_returns_opaque_error_id(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify that unhandled exceptions return HTTP 500 with a UUID error_id and no leaked internal trace/string."""
+    def crash(*args: object, **kwargs: object) -> None:
+        raise RuntimeError("Internal critical failure: /var/secrets/db_password.txt missing")
+
+    from src.services.ranking_engine import RankingEngine
+
+    monkeypatch.setattr(RankingEngine, "rank_candidates", crash)
+
+    with TestClient(app, raise_server_exceptions=False) as err_client:
+        payload = {
+            "request_id": "req_crash_test",
+            "user_id": "usr_crash",
+            "declared_topics": ["PROGRAMMING_WEB"],
+            "learning_direction": "Web",
+            "eligible_candidate_ids": ["pst_101"],
+            "limit": 5,
+        }
+        resp = err_client.post("/api/v1/recommendations/posts", json=payload)
+        assert resp.status_code == 500
+        data = resp.json()
+        assert data["detail"] == "Internal server error occurred."
+        assert "error_id" in data
+        assert data["error_id"].startswith("err_")
+        assert "error" not in data
+        assert "db_password" not in resp.text
+

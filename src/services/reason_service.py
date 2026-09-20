@@ -5,8 +5,7 @@ from datetime import datetime, timedelta, timezone
 from src.config import (
     FRESH_CONTENT_MAX_DAYS,
     HIGH_RATED_CREATOR_THRESHOLD,
-    REASON_FRESH_THRESHOLD,
-    REASON_SEMANTIC_THRESHOLD,
+    SEMANTIC_HIGH_THRESHOLD,
 )
 from src.schemas.common import ReasonCode, TopicTaxonomy
 from src.schemas.post import PostRecord
@@ -24,22 +23,25 @@ def generate_reason_codes_for_candidate(
     reference_time: datetime | None = None,
     interacted_topics: set[str] | None = None,
     interacted_post_ids: set[str] | None = None,
+    semantic_threshold: float = SEMANTIC_HIGH_THRESHOLD,
+    fresh_max_days: float = FRESH_CONTENT_MAX_DAYS,
+    creator_threshold: float = HIGH_RATED_CREATOR_THRESHOLD,
 ) -> list[ReasonCode]:
     """
     Generate explainable reason codes for a scored candidate post.
-    
+
     Quantitative Criteria:
     - SIMILAR_TO_INTERESTS:
-        Triggered if semantic_score >= REASON_SEMANTIC_THRESHOLD (0.75),
+        Triggered if semantic_score >= semantic_threshold (0.285, empirically measured p90),
         or candidate matches user's recent interaction history (post ID or topic).
     - TOPIC_MATCH:
         Triggered if candidate primary topic matches user's declared topics,
         or topic_score == 1.0.
     - FRESH_CONTENT:
-        Triggered if freshness_score >= REASON_FRESH_THRESHOLD (0.85),
-        or post was published within the last 72 hours (3 days).
+        Triggered strictly if post was published within fresh_max_days (3.0 days / 72 hours).
+        Single source of truth: days only, never an artificial decay-score threshold.
     - HIGH_RATED_CREATOR:
-        Triggered if creator_score >= HIGH_RATED_CREATOR_THRESHOLD (0.80).
+        Triggered if creator_score >= creator_threshold (0.80).
     """
     codes: list[ReasonCode] = []
 
@@ -50,7 +52,7 @@ def generate_reason_codes_for_candidate(
         else str(score_breakdown.primary_topic)
     )
 
-    is_semantically_high = score_breakdown.semantic_score >= REASON_SEMANTIC_THRESHOLD
+    is_semantically_high = score_breakdown.semantic_score >= semantic_threshold
 
     matches_interaction_history = False
     if (
@@ -80,9 +82,9 @@ def generate_reason_codes_for_candidate(
     if is_declared_topic:
         codes.append(ReasonCode.TOPIC_MATCH)
 
-    # 3. FRESH_CONTENT
-    is_fresh = score_breakdown.freshness_score >= REASON_FRESH_THRESHOLD
-    if not is_fresh and post is not None:
+    # 3. FRESH_CONTENT: Strictly days-only criteria (<= 3.0 days)
+    is_fresh = False
+    if post is not None:
         ref = reference_time or (
             datetime.now(timezone.utc)
             if post.created_at.tzinfo is not None
@@ -94,14 +96,14 @@ def generate_reason_codes_for_candidate(
             ref = ref.astimezone(timezone.utc)
 
         age = ref - post.created_at
-        if age <= timedelta(days=FRESH_CONTENT_MAX_DAYS):
+        if age <= timedelta(days=fresh_max_days):
             is_fresh = True
 
     if is_fresh:
         codes.append(ReasonCode.FRESH_CONTENT)
 
     # 4. HIGH_RATED_CREATOR
-    if score_breakdown.creator_score >= HIGH_RATED_CREATOR_THRESHOLD:
+    if score_breakdown.creator_score >= creator_threshold:
         codes.append(ReasonCode.HIGH_RATED_CREATOR)
 
     return codes
@@ -114,12 +116,12 @@ class ReasonService:
 
     def __init__(
         self,
-        semantic_threshold: float = REASON_SEMANTIC_THRESHOLD,
-        freshness_threshold: float = REASON_FRESH_THRESHOLD,
+        semantic_threshold: float = SEMANTIC_HIGH_THRESHOLD,
+        fresh_max_days: float = FRESH_CONTENT_MAX_DAYS,
         creator_threshold: float = HIGH_RATED_CREATOR_THRESHOLD,
     ) -> None:
         self.semantic_threshold = semantic_threshold
-        self.freshness_threshold = freshness_threshold
+        self.fresh_max_days = fresh_max_days
         self.creator_threshold = creator_threshold
 
     def get_reason_codes(
@@ -140,4 +142,8 @@ class ReasonService:
             reference_time=reference_time,
             interacted_topics=interacted_topics,
             interacted_post_ids=interacted_post_ids,
+            semantic_threshold=self.semantic_threshold,
+            fresh_max_days=self.fresh_max_days,
+            creator_threshold=self.creator_threshold,
         )
+

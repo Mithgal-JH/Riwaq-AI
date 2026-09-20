@@ -1,4 +1,4 @@
-# Multi-stage production Dockerfile for BinX Post Recommendation Engine
+# Multi-stage container build for BinX Post Recommendation Engine
 # Stage 1: Build dependencies & pre-download neural model weights
 FROM python:3.11-slim AS builder
 

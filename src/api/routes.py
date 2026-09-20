@@ -201,18 +201,39 @@ def handle_post_upsert(
                 except (ValueError, KeyError, TypeError) as exc:
                     logger.debug("Failed to normalize topic %s: %s", raw_top, exc)
 
-    # Extract difficulty and safety metadata
+    # Extract difficulty and safety metadata with fail-safe moderation
     diff_level: str | None = None
     diff_conf: float | None = None
     if event.difficulty and isinstance(event.difficulty, dict):
         diff_level = event.difficulty.get("level")
         diff_conf = event.difficulty.get("confidence")
 
-    safety_stat: str = "SAFE"
-    rec_sig: str = "ALLOW"
-    if event.safety and isinstance(event.safety, dict):
+    # Safety Evaluation: Fail-safe / cautious posture
+    # 1. Upstream failure or explicit review flag -> HOLD
+    if event.needs_review is True or (
+        event.processing_status and event.processing_status.lower() in ("partial", "failed")
+    ):
+        safety_stat = "REVIEW_REQUIRED"
+        rec_sig = "DOWNRANK_OR_HOLD"
+    # 2. Safety block present -> inspect status and recommendation signal
+    elif event.safety and isinstance(event.safety, dict):
         safety_stat = event.safety.get("status", "SAFE")
         rec_sig = event.safety.get("recommendation_signal", "ALLOW")
+        if (
+            event.safety.get("review_required") is True
+            or safety_stat == "REVIEW_REQUIRED"
+            or rec_sig == "DOWNRANK_OR_HOLD"
+        ):
+            safety_stat = "REVIEW_REQUIRED"
+            rec_sig = "DOWNRANK_OR_HOLD"
+    # 3. Explicitly cleared by upstream pipeline
+    elif event.needs_review is False:
+        safety_stat = "SAFE"
+        rec_sig = "ALLOW"
+    # 4. Decoupled baseline fallback when upstream analysis service is not attached
+    else:
+        safety_stat = "SAFE"
+        rec_sig = "ALLOW"
 
     # Infer or fallback topic if upstream classifier is offline
     if explicit_topic:

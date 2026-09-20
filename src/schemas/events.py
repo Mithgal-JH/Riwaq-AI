@@ -40,3 +40,11 @@ class PostUpsertEvent(BaseModel):
     topics: dict[str, Any] | None = Field(
         default=None, description="Topics container object from Content Analysis API"
     )
+    needs_review: bool | None = Field(
+        default=None,
+        description="Top-level moderation flag from Content Analysis (True for unsafe, low confidence, or flagged)",
+    )
+    processing_status: str | None = Field(
+        default=None,
+        description="Upstream processing status (completed, partial, or failed)",
+    )

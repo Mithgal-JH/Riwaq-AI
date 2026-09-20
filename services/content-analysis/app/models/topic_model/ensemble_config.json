@@ -1,0 +1,16 @@
+{
+  "selected_name": "microsoft__deberta_v3_base",
+  "selected_kind": "transformer",
+  "max_returned_topics": 6,
+  "max_primary_topics": 3,
+  "primary_score_margin": 0.1,
+  "components": [
+    {
+      "name": "microsoft__deberta_v3_base",
+      "type": "transformer",
+      "path": "models/microsoft__deberta_v3_base",
+      "weight": 1.0,
+      "max_length": 256
+    }
+  ]
+}

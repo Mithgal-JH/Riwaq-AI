@@ -1,0 +1,14 @@
+{
+  "TimSchopf/arxiv_categories": {
+    "license": "MIT",
+    "status": "allowed_by_dataset_card"
+  },
+  "tanaos/synthetic-topic-classification-dataset-v1": {
+    "license": "MIT",
+    "status": "allowed_by_dataset_card"
+  },
+  "mteb/yahoo_answers_topics": {
+    "license": "not stated on dataset card",
+    "status": "research_only_until_company_review"
+  }
+}

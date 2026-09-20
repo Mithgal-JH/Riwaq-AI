@@ -1,0 +1,53 @@
+{
+  "timestamp": "2026-09-20T20:28:37.936693+00:00",
+  "iterations": 50,
+  "batch_benchmarks": {
+    "batch_20": {
+      "batch_size": 20,
+      "description": "Mobile viewport pagination",
+      "iterations": 50,
+      "mean_ms": 17.7,
+      "median_p50_ms": 17.4,
+      "p95_ms": 20.49,
+      "p99_ms": 25.18,
+      "stdev_ms": 1.93,
+      "min_ms": 12.98,
+      "max_ms": 25.18,
+      "internal_target_50ms_met": true,
+      "platform_sla_150ms_met": true
+    },
+    "batch_50": {
+      "batch_size": 50,
+      "description": "Desktop standard feed",
+      "iterations": 50,
+      "mean_ms": 18.07,
+      "median_p50_ms": 17.99,
+      "p95_ms": 20.94,
+      "p99_ms": 21.58,
+      "stdev_ms": 1.81,
+      "min_ms": 14.29,
+      "max_ms": 21.58,
+      "internal_target_50ms_met": true,
+      "platform_sla_150ms_met": true
+    },
+    "batch_100": {
+      "batch_size": 100,
+      "description": "Maximum allowed SLA batch",
+      "iterations": 50,
+      "mean_ms": 17.74,
+      "median_p50_ms": 17.59,
+      "p95_ms": 20.61,
+      "p99_ms": 23.37,
+      "stdev_ms": 1.62,
+      "min_ms": 14.64,
+      "max_ms": 23.37,
+      "internal_target_50ms_met": true,
+      "platform_sla_150ms_met": true
+    }
+  },
+  "sla_verification": {
+    "internal_target_50ms": "PASSED",
+    "platform_sla_150ms": "PASSED",
+    "backend_timeout_budget_300ms": "PASSED (Safe margin > 150ms)"
+  }
+}

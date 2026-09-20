@@ -2,8 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 from src.config import (
     HIGH_RATED_CREATOR_THRESHOLD,
-    REASON_FRESH_THRESHOLD,
-    REASON_SEMANTIC_THRESHOLD,
+    SEMANTIC_HIGH_THRESHOLD,
 )
 from src.schemas.common import InteractionType, ReasonCode, TopicTaxonomy
 from src.schemas.post import PostRecord
@@ -175,26 +174,38 @@ def test_diversity_service_apply_capping() -> None:
 
 
 def test_reason_code_similar_to_interests_by_score() -> None:
-    # Semantic score >= 0.75 triggers SIMILAR_TO_INTERESTS
-    b = make_breakdown(
+    # Semantic score >= SEMANTIC_HIGH_THRESHOLD (0.285, empirically measured p90) triggers SIMILAR_TO_INTERESTS
+    b_hit = make_breakdown(
         "p1",
         TopicTaxonomy.AI_DATA,
-        semantic=REASON_SEMANTIC_THRESHOLD,
+        semantic=SEMANTIC_HIGH_THRESHOLD,
         topic_score=0.0,
         creator_score=0.5,
         freshness_score=0.5,
     )
-    codes = generate_reason_codes_for_candidate(b)
-    assert ReasonCode.SIMILAR_TO_INTERESTS in codes
-    assert ReasonCode.TOPIC_MATCH not in codes
+    codes_hit = generate_reason_codes_for_candidate(b_hit)
+    assert ReasonCode.SIMILAR_TO_INTERESTS in codes_hit
+    assert ReasonCode.TOPIC_MATCH not in codes_hit
+
+    # Just below threshold (0.284) does NOT trigger SIMILAR_TO_INTERESTS
+    b_miss = make_breakdown(
+        "p2",
+        TopicTaxonomy.AI_DATA,
+        semantic=SEMANTIC_HIGH_THRESHOLD - 0.001,
+        topic_score=0.0,
+        creator_score=0.5,
+        freshness_score=0.5,
+    )
+    codes_miss = generate_reason_codes_for_candidate(b_miss)
+    assert ReasonCode.SIMILAR_TO_INTERESTS not in codes_miss
 
 
 def test_reason_code_similar_to_interests_by_interaction_history() -> None:
-    # Semantic score low (0.30), but post_id matches recent interaction
+    # Semantic score low (0.15 < 0.285), but post_id matches recent interaction
     b = make_breakdown(
         "p_interacted",
         TopicTaxonomy.AI_DATA,
-        semantic=0.30,
+        semantic=0.15,
         topic_score=0.0,
         creator_score=0.5,
         freshness_score=0.5,
@@ -216,7 +227,7 @@ def test_reason_code_topic_match_declared() -> None:
     b = make_breakdown(
         "p1",
         TopicTaxonomy.CYBERSECURITY,
-        semantic=0.40,
+        semantic=0.20,
         topic_score=1.0,
         creator_score=0.5,
         freshness_score=0.5,
@@ -228,50 +239,49 @@ def test_reason_code_topic_match_declared() -> None:
     assert ReasonCode.SIMILAR_TO_INTERESTS not in codes
 
 
-def test_reason_code_fresh_content_by_score() -> None:
-    b = make_breakdown(
-        "p1",
-        TopicTaxonomy.DESIGN,
-        semantic=0.40,
-        topic_score=0.0,
-        creator_score=0.5,
-        freshness_score=REASON_FRESH_THRESHOLD,
-    )
-    codes = generate_reason_codes_for_candidate(b)
-    assert ReasonCode.FRESH_CONTENT in codes
-
-
-def test_reason_code_fresh_content_by_timestamp() -> None:
+def test_reason_code_fresh_content_strictly_days_only() -> None:
     ref_time = datetime(2026, 9, 18, 12, 0, 0, tzinfo=timezone.utc)
-    post_time = ref_time - timedelta(hours=48)  # 2 days old (<= 72 hrs)
 
-    post = PostRecord(
-        id="p1",
+    # 1. Post created 48h ago (<= 72h / 3 days) -> Triggers FRESH_CONTENT
+    fresh_post = PostRecord(
+        id="p_fresh",
         creator_id="usr_01",
         title="Modern UI Design",
         body="Principles of UI Design.",
-        created_at=post_time,
+        created_at=ref_time - timedelta(hours=48),
         primary_topic=TopicTaxonomy.DESIGN,
     )
-    b = make_breakdown(
-        "p1",
-        TopicTaxonomy.DESIGN,
-        semantic=0.30,
-        topic_score=0.0,
-        creator_score=0.5,
-        freshness_score=0.70,  # below score threshold
+    b_fresh = make_breakdown("p_fresh", TopicTaxonomy.DESIGN, freshness_score=0.60)
+    codes_fresh = generate_reason_codes_for_candidate(
+        b_fresh, post=fresh_post, reference_time=ref_time
     )
-    codes = generate_reason_codes_for_candidate(
-        b, post=post, reference_time=ref_time
+    assert ReasonCode.FRESH_CONTENT in codes_fresh
+
+    # 2. Post created 96h ago (> 72h / 3 days) -> Does NOT trigger even if freshness score is high
+    stale_post = PostRecord(
+        id="p_stale",
+        creator_id="usr_01",
+        title="Older Design Post",
+        body="Comprehensive Design Systems.",
+        created_at=ref_time - timedelta(hours=96),
+        primary_topic=TopicTaxonomy.DESIGN,
     )
-    assert ReasonCode.FRESH_CONTENT in codes
+    b_stale = make_breakdown("p_stale", TopicTaxonomy.DESIGN, freshness_score=0.95)
+    codes_stale = generate_reason_codes_for_candidate(
+        b_stale, post=stale_post, reference_time=ref_time
+    )
+    assert ReasonCode.FRESH_CONTENT not in codes_stale
+
+    # 3. Post is None -> Does NOT trigger
+    codes_none = generate_reason_codes_for_candidate(b_stale, post=None)
+    assert ReasonCode.FRESH_CONTENT not in codes_none
 
 
 def test_reason_code_high_rated_creator() -> None:
     b = make_breakdown(
         "p1",
         TopicTaxonomy.ROBOTICS,
-        semantic=0.30,
+        semantic=0.20,
         topic_score=0.0,
         creator_score=HIGH_RATED_CREATOR_THRESHOLD,
         freshness_score=0.5,
@@ -281,16 +291,28 @@ def test_reason_code_high_rated_creator() -> None:
 
 
 def test_reason_code_all_flags_triggered() -> None:
+    ref_time = datetime(2026, 9, 18, 12, 0, 0, tzinfo=timezone.utc)
+    fresh_post = PostRecord(
+        id="p_star",
+        creator_id="usr_01",
+        title="Fullstack Microservices Tutorial",
+        body="Comprehensive guide to async web services and architecture.",
+        created_at=ref_time - timedelta(days=1),
+        primary_topic=TopicTaxonomy.PROGRAMMING_WEB,
+    )
     b = make_breakdown(
         "p_star",
         TopicTaxonomy.PROGRAMMING_WEB,
-        semantic=0.92,
+        semantic=0.35,  # >= SEMANTIC_HIGH_THRESHOLD (0.285)
         topic_score=1.0,
         creator_score=0.95,
         freshness_score=0.98,
     )
     codes = generate_reason_codes_for_candidate(
-        b, declared_topics=[TopicTaxonomy.PROGRAMMING_WEB]
+        b,
+        declared_topics=[TopicTaxonomy.PROGRAMMING_WEB],
+        post=fresh_post,
+        reference_time=ref_time,
     )
     assert len(codes) == 4
     assert set(codes) == {

@@ -1,6 +1,7 @@
 import json
 import logging
 import time
+import uuid
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -52,7 +53,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """
     Application lifespan manager.
     Pre-warms embedding model, loads vectors and catalogs into memory on startup
-    to guarantee sub-50ms latency on the very first incoming request.
+    to minimize initial request latency.
     """
     logger.info("Initializing Post Recommendation Service components...")
 
@@ -118,15 +119,15 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="BinX Educational Post Recommendation Microservice",
         version=MODEL_VERSION,
-        description="Sub-150ms semantic & multi-factor educational post recommendation engine.",
+        description="Semantic & multi-factor educational post recommendation engine.",
         lifespan=lifespan,
     )
 
-    # CORS Middleware
+    # CORS Middleware (credentials disallowed for wildcard origin)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
-        allow_credentials=True,
+        allow_credentials=False,
         allow_methods=["*"],
         allow_headers=["*"],
     )
@@ -140,13 +141,17 @@ def create_app() -> FastAPI:
         response.headers["X-Process-Time-Ms"] = f"{process_time_ms:.2f}"
         return response
 
-    # Global Exception Handler
+    # Global Exception Handler (Opaque error_id, no leaked internals)
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-        logger.exception("Unhandled server exception: %s", exc)
+        error_id = f"err_{uuid.uuid4().hex[:12]}"
+        logger.exception("Unhandled server exception [%s]: %s", error_id, exc)
         return JSONResponse(
             status_code=500,
-            content={"detail": "Internal server error occurred.", "error": str(exc)},
+            content={
+                "detail": "Internal server error occurred.",
+                "error_id": error_id,
+            },
         )
 
     # Mount Routes

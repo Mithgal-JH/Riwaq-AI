@@ -1,7 +1,7 @@
 """
 Latency Benchmarking Suite for BinX Post Recommendation Engine.
 Measures end-to-end processing latency across candidate batch sizes (20, 50, 100)
-on CPU to verify compliance with internal (< 50ms) and platform (< 150ms) SLAs.
+on CPU to verify compliance with self-imposed targets (< 50ms internal, < 150ms ceiling).
 """
 
 import json
@@ -31,12 +31,12 @@ WARMUP_ITERATIONS = 5
 
 
 def run_latency_benchmark() -> dict[str, Any]:
-    """Execute end-to-end latency benchmarks across production candidate batch sizes."""
+    """Execute end-to-end latency benchmarks across representative candidate batch sizes."""
     results: dict[str, Any] = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "iterations": ITERATIONS,
         "batch_benchmarks": {},
-        "sla_verification": {},
+        "target_verification": {},
     }
 
     with TestClient(app) as client:
@@ -56,7 +56,7 @@ def run_latency_benchmark() -> dict[str, Any]:
         batch_configs = [
             ("batch_20", 20, "Mobile viewport pagination"),
             ("batch_50", 50, "Desktop standard feed"),
-            ("batch_100", 100, "Maximum allowed SLA batch"),
+            ("batch_100", 100, "Maximum batch ceiling"),
         ]
 
         # Generate candidate pool of 100 items from mock catalog IDs (repeating patterns if needed)
@@ -101,10 +101,10 @@ def run_latency_benchmark() -> dict[str, Any]:
             p99 = latencies_ms[int(len(latencies_ms) * 0.99)]
             stdev = statistics.stdev(latencies_ms) if len(latencies_ms) > 1 else 0.0
 
-            # Target checks: Internal < 50ms, Platform SLA < 150ms
+            # Target checks: Internal target < 50ms, Latency ceiling < 150ms
             target_met = p95 < 50.0
-            sla_met = p99 < 150.0
-            if not sla_met:
+            ceiling_met = p99 < 150.0
+            if not ceiling_met:
                 all_compliant = False
 
             results["batch_benchmarks"][name] = {
@@ -119,7 +119,7 @@ def run_latency_benchmark() -> dict[str, Any]:
                 "min_ms": round(min(latencies_ms), 2),
                 "max_ms": round(max(latencies_ms), 2),
                 "internal_target_50ms_met": target_met,
-                "platform_sla_150ms_met": sla_met,
+                "latency_ceiling_150ms_met": ceiling_met,
             }
 
             logger.info(
@@ -133,10 +133,10 @@ def run_latency_benchmark() -> dict[str, Any]:
                 "PASSED" if target_met else "WARNING",
             )
 
-        results["sla_verification"] = {
+        results["target_verification"] = {
             "internal_target_50ms": "PASSED" if all_compliant else "WARNING",
-            "platform_sla_150ms": "PASSED" if all_compliant else "FAILED",
-            "backend_timeout_budget_300ms": "PASSED (Safe margin > 150ms)",
+            "latency_ceiling_150ms": "PASSED" if all_compliant else "FAILED",
+            "backend_timeout_margin_300ms": "PASSED (Safe margin > 150ms)",
         }
 
     # Save results to disk

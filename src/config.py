@@ -13,7 +13,7 @@ MODEL_NAME: Final[str] = "all-MiniLM-L6-v2"
 MODEL_VERSION: Final[str] = f"sentence-transformer-v1.0-{MODEL_NAME}"
 EMBEDDING_DIM: Final[int] = 384
 
-# The 8 Agreed Taxonomy Topics
+# The 12-Class Taxonomy Topics (aligned with Haitham's Content Analysis API)
 TAXONOMY_TOPICS: Final[list[str]] = [
     "Programming/Web",
     "AI/Data",
@@ -23,6 +23,10 @@ TAXONOMY_TOPICS: Final[list[str]] = [
     "Design",
     "Mathematics",
     "Natural Sciences",
+    "Health/Medicine",
+    "Business/Economics",
+    "Language/Communication",
+    "Humanities/Social",
 ]
 
 # Composite Ranking Weights (0.70 + 0.15 + 0.10 + 0.05 = 1.00)

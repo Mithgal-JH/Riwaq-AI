@@ -48,3 +48,9 @@ class PostUpsertEvent(BaseModel):
         default=None,
         description="Upstream processing status (completed, partial, or failed)",
     )
+    creator_teaching_quality: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+        description="Creator teaching quality score from Zayan's model (0.0 to 1.0)",
+    )

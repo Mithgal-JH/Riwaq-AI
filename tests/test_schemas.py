@@ -26,7 +26,7 @@ def test_config_weights_and_constants():
         + config.WEIGHT_FRESHNESS
     )
     assert pytest.approx(total_weight, rel=1e-5) == 1.00
-    assert len(config.TAXONOMY_TOPICS) == 8
+    assert len(config.TAXONOMY_TOPICS) == 12
     assert config.FRESHNESS_HALF_LIFE_DAYS == 14.0
     assert config.MAX_CANDIDATES_PER_REQUEST == 100
     assert config.DEFAULT_CREATOR_QUALITY == 0.50
@@ -171,12 +171,13 @@ def test_mock_posts_dataset_integrity():
     validated_posts = [PostRecord(**p) for p in raw_posts]
     assert len(validated_posts) == len(raw_posts)
 
-    # Check topic coverage
+    # Check topic coverage (mock data covers 8 of the 12 taxonomy topics)
     covered_topics = {p.primary_topic for p in validated_posts}
     all_expected_topics = set(TopicTaxonomy)
-    assert covered_topics == all_expected_topics, (
-        f"Missing topic coverage: {all_expected_topics - covered_topics}"
+    assert covered_topics.issubset(all_expected_topics), (
+        f"Unknown topics in mock data: {covered_topics - all_expected_topics}"
     )
+    assert len(covered_topics) >= 8, f"Expected at least 8 topics covered, got {len(covered_topics)}"
 
     # Check teaching quality bounds
     for p in validated_posts:
@@ -193,6 +194,10 @@ def test_topic_taxonomy_bidirectional_normalization():
     assert TopicTaxonomy("Programming/Web") == TopicTaxonomy.PROGRAMMING_WEB
     assert TopicTaxonomy.normalize("ELECTRONICS_EMBEDDED") == TopicTaxonomy.ELECTRONICS_EMBEDDED
     assert TopicTaxonomy.normalize("Cybersecurity") == TopicTaxonomy.CYBERSECURITY
+    assert TopicTaxonomy.normalize("HEALTH_MEDICINE") == TopicTaxonomy.HEALTH_MEDICINE
+    assert TopicTaxonomy.normalize("BUSINESS_ECONOMICS") == TopicTaxonomy.BUSINESS_ECONOMICS
+    assert TopicTaxonomy.normalize("LANG_COMMUNICATION") == TopicTaxonomy.LANG_COMMUNICATION
+    assert TopicTaxonomy.normalize("HUMANITIES_SOCIAL") == TopicTaxonomy.HUMANITIES_SOCIAL
 
     # Verify RecommendationRequest accepts uppercase format
     req = RecommendationRequest(

@@ -187,28 +187,55 @@ def handle_post_upsert(
     catalog: dict[str, PostRecord] = state.catalog
     embedding_service: EmbeddingService = state.embedding_service
 
-    # Extract topic from explicit field or nested topics object
+    # ── Extract topic from explicit field or nested topics object ──────────
     explicit_topic: TopicTaxonomy | None = None
+    predicted_topics: list[TopicTaxonomy] = []
+    topic_confidence_scores: dict[str, float] = {}
+
     if event.primary_topic:
         explicit_topic = TopicTaxonomy.normalize(event.primary_topic)
-    elif event.topics and isinstance(event.topics, dict):
+
+    if event.topics and isinstance(event.topics, dict):
+        # Parse primary_topics from Haitham's Content Analysis response
         prim_list = event.topics.get("primary_topics", [])
         if prim_list and isinstance(prim_list, list) and isinstance(prim_list[0], dict):
             raw_top = prim_list[0].get("topic")
-            if raw_top:
+            if raw_top and not explicit_topic:
                 try:
                     explicit_topic = TopicTaxonomy.normalize(raw_top)
                 except (ValueError, KeyError, TypeError) as exc:
-                    logger.debug("Failed to normalize topic %s: %s", raw_top, exc)
+                    logger.debug("Failed to normalize primary topic %s: %s", raw_top, exc)
 
-    # Extract difficulty and safety metadata with fail-safe moderation
+        # Parse secondary_topics from Haitham's response into predicted_topics
+        sec_list = event.topics.get("secondary_topics", [])
+        if sec_list and isinstance(sec_list, list):
+            for sec_item in sec_list:
+                if isinstance(sec_item, dict):
+                    raw_sec = sec_item.get("topic")
+                    if raw_sec:
+                        try:
+                            predicted_topics.append(TopicTaxonomy.normalize(raw_sec))
+                        except (ValueError, KeyError, TypeError) as exc:
+                            logger.debug("Failed to normalize secondary topic %s: %s", raw_sec, exc)
+
+        # Consume all_scores from Haitham's topic response for topic_confidence_scores
+        all_scores = event.topics.get("all_scores")
+        if all_scores and isinstance(all_scores, dict):
+            for label, score in all_scores.items():
+                try:
+                    normalized_topic = TopicTaxonomy.normalize(label)
+                    topic_confidence_scores[normalized_topic.value] = float(score)
+                except (ValueError, KeyError, TypeError):
+                    pass  # Skip labels not in our taxonomy
+
+    # Extract difficulty metadata with fail-safe defaults
     diff_level: str | None = None
     diff_conf: float | None = None
     if event.difficulty and isinstance(event.difficulty, dict):
         diff_level = event.difficulty.get("level")
         diff_conf = event.difficulty.get("confidence")
 
-    # Safety Evaluation: Fail-safe / cautious posture
+    # ── Safety Evaluation: Fail-safe / cautious posture ───────────────────
     # 1. Upstream failure or explicit review flag -> HOLD
     if event.needs_review is True or (
         event.processing_status and event.processing_status.lower() in ("partial", "failed")
@@ -217,7 +244,8 @@ def handle_post_upsert(
         rec_sig = "DOWNRANK_OR_HOLD"
     # 2. Safety block present -> inspect status and recommendation signal
     elif event.safety and isinstance(event.safety, dict):
-        safety_stat = event.safety.get("status", "SAFE")
+        # Accept both "safety_status" (Haitham's key) and "status" (legacy/backend key)
+        safety_stat = event.safety.get("safety_status") or event.safety.get("status", "SAFE")
         rec_sig = event.safety.get("recommendation_signal", "ALLOW")
         if (
             event.safety.get("review_required") is True
@@ -235,7 +263,7 @@ def handle_post_upsert(
         safety_stat = "SAFE"
         rec_sig = "ALLOW"
 
-    # Infer or fallback topic if upstream classifier is offline
+    # ── Infer or fallback topic if upstream classifier is offline ─────────
     if explicit_topic:
         inferred_topic = explicit_topic
     else:
@@ -247,6 +275,17 @@ def handle_post_upsert(
                 inferred_topic = topic
                 break
 
+    # Fallback confidence scores if Haitham's all_scores was not provided
+    if not topic_confidence_scores:
+        topic_confidence_scores = {inferred_topic.value: 1.0}
+
+    # ── Creator quality: use Zayan's score if provided, else fallback ─────
+    creator_quality = (
+        event.creator_teaching_quality
+        if event.creator_teaching_quality is not None
+        else DEFAULT_CREATOR_QUALITY
+    )
+
     # Build PostRecord with decoupled fallbacks and Content Analysis metadata
     post_record = PostRecord(
         id=event.post_id,
@@ -255,9 +294,9 @@ def handle_post_upsert(
         body=event.body,
         created_at=event.created_at,
         primary_topic=inferred_topic,
-        predicted_topics=[],
-        topic_confidence_scores={inferred_topic.value: 1.0},
-        creator_teaching_quality=DEFAULT_CREATOR_QUALITY,
+        predicted_topics=predicted_topics,
+        topic_confidence_scores=topic_confidence_scores,
+        creator_teaching_quality=creator_quality,
         difficulty_level=diff_level,
         difficulty_confidence=diff_conf,
         safety_status=safety_stat,

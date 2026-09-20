@@ -1,0 +1,2 @@
+model,kind,val_micro_f1,val_macro_f1,test_micro_f1,test_macro_f1,test_precision,test_recall,test_exact_match
+microsoft__deberta_v3_base,transformer,0.8713586137619287,0.7868954882451128,0.8733512131620634,0.7902123855787492,0.8586584425597533,0.8885555626476033,0.8285998253169894

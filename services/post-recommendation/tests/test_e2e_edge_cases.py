@@ -23,7 +23,7 @@ def client() -> Iterator[TestClient]:
 
 
 def test_maximum_allowed_candidate_batch_boundary(client: TestClient) -> None:
-    """Verify that exactly 100 candidate IDs (the maximum allowed SLA batch) executes cleanly."""
+    """Verify that exactly 100 candidate IDs executes cleanly."""
     candidate_ids = [f"pst_{d}0{i}" for d in range(1, 9) for i in range(1, 6)]
     # Pad to exactly 100 items
     exact_100_candidates = (candidate_ids * 3)[:MAX_CANDIDATES_PER_REQUEST]

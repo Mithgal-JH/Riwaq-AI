@@ -228,18 +228,6 @@
             "title": "Needs Review",
             "description": "Top-level moderation flag from Content Analysis (True for unsafe, low confidence, or flagged)"
           },
-          "processing_status": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Processing Status",
-            "description": "Upstream processing status (completed, partial, or failed)"
-          },
           "creator_teaching_quality": {
             "anyOf": [
               {

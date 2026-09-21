@@ -60,7 +60,9 @@
   "problem_type": "multi_label_classification",
   "relative_attention": true,
   "share_att_key": true,
-  "transformers_version": "4.57.6",
+  "tie_word_embeddings": true,
+  "transformers_version": "5.0.0",
   "type_vocab_size": 0,
+  "use_cache": false,
   "vocab_size": 128100
 }

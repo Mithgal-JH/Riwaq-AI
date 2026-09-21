@@ -232,7 +232,7 @@ def test_post_upsert_with_top_level_needs_review_flag_is_held(client: TestClient
         "body": "Post forwarded to recommendation queue while awaiting manual check.",
         "created_at": datetime.now(timezone.utc).isoformat(),
         "needs_review": True,
-        "processing_status": "partial",
+
         # safety block is omitted completely
     }
 

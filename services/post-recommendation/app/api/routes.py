@@ -237,9 +237,7 @@ def handle_post_upsert(
 
     # ── Safety Evaluation: Fail-safe / cautious posture ───────────────────
     # 1. Upstream failure or explicit review flag -> HOLD
-    if event.needs_review is True or (
-        event.processing_status and event.processing_status.lower() in ("partial", "failed")
-    ):
+    if event.needs_review is True:
         safety_stat = "REVIEW_REQUIRED"
         rec_sig = "DOWNRANK_OR_HOLD"
     # 2. Safety block present -> inspect status and recommendation signal

@@ -44,10 +44,7 @@ class PostUpsertEvent(BaseModel):
         default=None,
         description="Top-level moderation flag from Content Analysis (True for unsafe, low confidence, or flagged)",
     )
-    processing_status: str | None = Field(
-        default=None,
-        description="Upstream processing status (completed, partial, or failed)",
-    )
+
     creator_teaching_quality: float | None = Field(
         default=None,
         ge=0.0,

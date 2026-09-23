@@ -15,7 +15,7 @@ services:
 
   person-recommendation:
     build:
-      context: ./recommendation-system/person-to-person/recommendation_api
+      context: ./services/person-recommendation
     ports:
       - "8003:8000"
     restart: unless-stopped

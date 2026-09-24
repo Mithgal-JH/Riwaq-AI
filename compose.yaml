@@ -1,0 +1,36 @@
+name: riwaq-ai
+
+services:
+  content-analysis:
+    build:
+      context: ./services/content-analysis
+    restart: unless-stopped
+
+  post-recommendation:
+    build:
+      context: ./services/post-recommendation
+    ports:
+      - "8002:8000"
+    restart: unless-stopped
+
+  person-recommendation:
+    build:
+      context: ./services/person-recommendation
+    ports:
+      - "8003:8000"
+    restart: unless-stopped
+
+  ai-gateway:
+    build:
+      context: ./services/ai-gateway
+    environment:
+      CONTENT_ANALYSIS_URL: http://content-analysis:8000
+      POST_RECOMMENDATION_URL: http://post-recommendation:8000
+      PERSON_RECOMMENDATION_URL: http://person-recommendation:8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - content-analysis
+      - post-recommendation
+      - person-recommendation
+    restart: unless-stopped

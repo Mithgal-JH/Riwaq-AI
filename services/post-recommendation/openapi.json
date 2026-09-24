@@ -1,0 +1,517 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "BinX Educational Post Recommendation Microservice",
+    "description": "Semantic & multi-factor educational post recommendation engine.",
+    "version": "sentence-transformer-v1.0-all-MiniLM-L6-v2"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Health and diagnostics probe exposing service status, vector counts, and model version.",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Health Check Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/recommendations/posts": {
+      "post": {
+        "summary": "Get Recommendations",
+        "description": "Online Educational Post Recommendation Endpoint.\nExecutes full pipeline:\n1. Candidate deduplication & exclusion pre-filtering\n2. Learner profile modeling (Cold-start centroid or Warm blend)\n3. Dense semantic similarity retrieval (all-MiniLM-L6-v2)\n4. Multi-factor composite ranking (Semantic, Topic, Creator, Freshness)\n5. Feed diversity topic frequency capping (max 3 consecutive same topic)\n6. Explainable reason code generation\n7. Calibrated response payload construction",
+        "operationId": "get_recommendations_api_v1_recommendations_posts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecommendationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecommendationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/events/post-upserted": {
+      "post": {
+        "summary": "Handle Post Upsert",
+        "description": "Asynchronous event endpoint for post creation or update.\nEncodes post text on the fly and updates the in-memory vector store and catalog\nwith zero microservice downtime.",
+        "operationId": "handle_post_upsert_api_v1_events_post_upserted_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostUpsertEvent"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Handle Post Upsert Api V1 Events Post Upserted Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "InteractionType": {
+        "type": "string",
+        "enum": [
+          "like",
+          "save",
+          "repost"
+        ],
+        "title": "InteractionType",
+        "description": "Types of positive user interactions tracked for warm profile updating."
+      },
+      "PostUpsertEvent": {
+        "properties": {
+          "post_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Post Id",
+            "description": "Unique identifier for the post"
+          },
+          "creator_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Creator Id",
+            "description": "Author identifier"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Title",
+            "description": "Title of the educational post"
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Body",
+            "description": "Text body content of the educational post"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "Creation/publication timestamp in ISO 8601 format"
+          },
+          "primary_topic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TopicTaxonomy"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Primary taxonomy topic"
+          },
+          "difficulty": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Difficulty",
+            "description": "Difficulty object from Content Analysis API"
+          },
+          "safety": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Safety",
+            "description": "Safety object from Content Analysis API"
+          },
+          "topics": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topics",
+            "description": "Topics container object from Content Analysis API"
+          },
+          "needs_review": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Needs Review",
+            "description": "Top-level moderation flag from Content Analysis (True for unsafe, low confidence, or flagged)"
+          },
+          "creator_teaching_quality": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Creator Teaching Quality",
+            "description": "Creator teaching quality score from Zayan's model (0.0 to 1.0)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "post_id",
+          "creator_id",
+          "title",
+          "body",
+          "created_at"
+        ],
+        "title": "PostUpsertEvent",
+        "description": "Asynchronous event payload received from the .NET Backend\nwhen an educational post is created, published, or updated.\nSupports optional content analysis metadata (topics, difficulty, safety)."
+      },
+      "RankedPostItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Post identifier"
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Rank",
+            "description": "1-based rank position in the recommended feed"
+          },
+          "score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Score",
+            "description": "Final composite ranking score in [0.0, 1.0]"
+          },
+          "reason_codes": {
+            "items": {
+              "$ref": "#/components/schemas/ReasonCode"
+            },
+            "type": "array",
+            "title": "Reason Codes",
+            "description": "Explainable reason codes for UI badges on feed cards"
+          },
+          "primary_topic": {
+            "$ref": "#/components/schemas/TopicTaxonomy",
+            "description": "Primary topic of the post"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "rank",
+          "score",
+          "primary_topic"
+        ],
+        "title": "RankedPostItem",
+        "description": "A single ranked post item in the recommendation response."
+      },
+      "ReasonCode": {
+        "type": "string",
+        "enum": [
+          "SIMILAR_TO_INTERESTS",
+          "TOPIC_MATCH",
+          "FRESH_CONTENT",
+          "HIGH_RATED_CREATOR"
+        ],
+        "title": "ReasonCode",
+        "description": "Explainable reason codes mapped to frontend post card badges."
+      },
+      "RecommendationRequest": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Request Id",
+            "description": "Unique tracking identifier"
+          },
+          "user_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "User Id",
+            "description": "The learner user requesting the feed"
+          },
+          "declared_topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicTaxonomy"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Declared Topics",
+            "description": "Onboarding topics chosen by user (from the 8-class taxonomy)"
+          },
+          "learning_direction": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Learning Direction",
+            "description": "Primary learning direction (e.g., 'Backend Development')"
+          },
+          "eligible_candidate_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Eligible Candidate Ids",
+            "description": "Candidate post IDs already pre-filtered by backend as published and non-blocked"
+          },
+          "exclude_post_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Exclude Post Ids",
+            "description": "Post IDs to exclude (already displayed, saved, or authored by user)"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "description": "Number of ranked posts to return",
+            "default": 10
+          },
+          "recent_interactions": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/UserInteractionItem"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recent Interactions",
+            "description": "Recent positive interactions for dynamic warm-learner profile modeling"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "user_id",
+          "declared_topics",
+          "learning_direction",
+          "eligible_candidate_ids"
+        ],
+        "title": "RecommendationRequest",
+        "description": "Inbound recommendation request from the .NET Backend.\nEndpoint: POST /api/v1/recommendations/posts"
+      },
+      "RecommendationResponse": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id",
+            "description": "Correlated request identifier"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version",
+            "description": "Model version tag generating the recommendations"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Count",
+            "description": "Number of items returned"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RankedPostItem"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "Ordered list of ranked posts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "model_version",
+          "count"
+        ],
+        "title": "RecommendationResponse",
+        "description": "Outbound recommendation payload strictly adhering to Section 5.1 JSON contract.\nReturned with HTTP 200 OK."
+      },
+      "TopicTaxonomy": {
+        "type": "string",
+        "enum": [
+          "Programming/Web",
+          "AI/Data",
+          "Electronics/Embedded",
+          "Robotics",
+          "Cybersecurity",
+          "Design",
+          "Mathematics",
+          "Natural Sciences",
+          "Health/Medicine",
+          "Business/Economics",
+          "Language/Communication",
+          "Humanities/Social"
+        ],
+        "title": "TopicTaxonomy",
+        "description": "12-class subject taxonomy for BinX educational posts (aligned with Haitham's Content Analysis API)."
+      },
+      "UserInteractionItem": {
+        "properties": {
+          "post_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Post Id",
+            "description": "Interacted post identifier"
+          },
+          "interaction_type": {
+            "$ref": "#/components/schemas/InteractionType",
+            "description": "Action type: like, save, or repost"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp",
+            "description": "Interaction occurrence timestamp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "post_id",
+          "interaction_type",
+          "timestamp"
+        ],
+        "title": "UserInteractionItem",
+        "description": "A single user interaction event used for warm profile vector updating."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

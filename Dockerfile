@@ -1,4 +1,4 @@
-FROM python:3.11-slim AS builder
+FROM python:3.12-slim AS builder
 
 WORKDIR /build
 
@@ -26,7 +26,7 @@ RUN /opt/venvs/post-recommendation/bin/python -c \
     "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
 
 
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 WORKDIR /opt/riwaq
 

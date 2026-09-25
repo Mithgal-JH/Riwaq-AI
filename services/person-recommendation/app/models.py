@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 
 class SyncProfile(BaseModel):
     profile_id: str
+    user_id: str = ""
     skills: List[str] = Field(default_factory=list)
     interests: List[str] = Field(default_factory=list)
     learning_direction: Optional[str] = None

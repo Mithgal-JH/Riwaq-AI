@@ -117,7 +117,16 @@ class RecommendationIndex:
         scores = self._similarity[idx].copy()
         scores[idx] = -1  # exclude self
         ranked = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)
-        top_idx = [i for i in ranked if scores[i] > -1][:top_n]
+        own_user_id = own.get("user_id")
+        top_idx = [
+            i
+            for i in ranked
+            if scores[i] > -1
+            and not (
+                own_user_id
+                and self.profiles[self._order[i]].get("user_id") == own_user_id
+            )
+        ][:top_n]
 
         own_skills = set(own.get("skills") or [])
         own_interests = set(own.get("interests") or [])

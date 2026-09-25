@@ -56,6 +56,30 @@ def test_full_sync_and_recommend_sanity():
     assert body["low_confidence"] is False
 
 
+def test_same_user_profiles_are_excluded_from_recommendations():
+    _reset()
+    profiles = [
+        {"profile_id": "profile-a", "user_id": "user-1", "skills": ["Python"], "interests": [],
+         "learning_direction": None, "bio": "Python developer."},
+        {"profile_id": "profile-b", "user_id": "user-1", "skills": ["Python", "SQL"], "interests": [],
+         "learning_direction": None, "bio": "Python and SQL developer."},
+        {"profile_id": "profile-c", "user_id": "user-2", "skills": ["Python", "React"], "interests": [],
+         "learning_direction": None, "bio": "Python and React developer."},
+    ]
+    r = client.post("/api/v1/ai/recommendations/people/sync", json={"sync_type": "full", "profiles": profiles})
+    assert r.status_code == 200
+
+    r = client.get(
+        "/api/v1/ai/recommendations/people/profile-a",
+        params={"top_n": 2, "request_id": "req_same_user"},
+    )
+    assert r.status_code == 200
+    candidate_ids = [rec["candidate_profile_id"] for rec in r.json()["recommendations"]]
+    assert "profile-a" not in candidate_ids
+    assert "profile-b" not in candidate_ids
+    assert "profile-c" in candidate_ids
+
+
 def test_learning_direction_null_never_crashes_and_is_false_when_null():
     _reset()
     profiles = [

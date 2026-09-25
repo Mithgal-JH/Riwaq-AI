@@ -15,7 +15,11 @@ RUN python -m venv /opt/venvs/ai-gateway && \
     /opt/venvs/ai-gateway/bin/pip install --no-cache-dir -r /build/ai-gateway-requirements.txt
 
 RUN python -m venv /opt/venvs/content-analysis && \
-    /opt/venvs/content-analysis/bin/pip install --no-cache-dir -r /build/content-analysis-requirements.txt
+    sed '/^torch==/d' /build/content-analysis-requirements.txt > /tmp/content-analysis-requirements.txt && \
+    /opt/venvs/content-analysis/bin/pip install --no-cache-dir -r /tmp/content-analysis-requirements.txt && \
+    /opt/venvs/content-analysis/bin/pip install --no-cache-dir --no-deps \
+        --index-url https://download.pytorch.org/whl/cpu \
+        torch==2.14.0+cpu
 
 RUN python -m venv /opt/venvs/post-recommendation && \
     /opt/venvs/post-recommendation/bin/pip install --no-cache-dir -r /build/post-recommendation-requirements.txt

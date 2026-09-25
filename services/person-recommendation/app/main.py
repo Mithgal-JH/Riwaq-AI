@@ -10,12 +10,8 @@ BinX_PersonToPerson_Recommendation_API_Contract.docx:
 Owner: Zayan Shawareb — Team3-AI, BinX Tech.
 """
 from datetime import datetime, timezone
-import logging
 
 from fastapi import FastAPI, HTTPException, Path, Query
-from fastapi.encoders import jsonable_encoder
-from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
 
 from .models import RecommendationResponse, SyncRequest, SyncResponse
 from .recommender import MODEL_VERSION, PREPROCESSING_VERSION, RecommendationIndex
@@ -27,22 +23,6 @@ app = FastAPI(
 )
 
 index = RecommendationIndex()
-logger = logging.getLogger("person-recommendation")
-
-
-@app.exception_handler(RequestValidationError)
-async def log_sync_validation_error(request, exc: RequestValidationError):
-    if request.url.path == "/api/v1/ai/recommendations/people/sync":
-        logger.error(
-            "TEMPORARY sync validation failure: path=%s errors=%s",
-            request.url.path,
-            exc.errors(),
-        )
-
-    return JSONResponse(
-        status_code=422,
-        content={"detail": jsonable_encoder(exc.errors())},
-    )
 
 
 def _now_iso() -> str:
